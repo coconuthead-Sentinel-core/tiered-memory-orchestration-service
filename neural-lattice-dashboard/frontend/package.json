@@ -1,0 +1,9 @@
+{
+  "name": "neural-lattice-dashboard-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "React frontend for the Neural Lattice Diagnostic Dashboard. Served as bundled assets from FastAPI at /; the dist/ folder is the production build (Babel Standalone, no Node toolchain required).",
+  "scripts": {
+    "start": "echo 'Open http://localhost:8000 — frontend is served by FastAPI.'"
+  }
+}
