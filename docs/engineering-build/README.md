@@ -3,7 +3,7 @@
 ## Status
 - Project: Sentinel Forge Cognitive AI Orchestration Platform
 - Document state: completed for the current review release
-- Owner: Shannon Bryan Kelly
+- Owner: Shannon Brian Kelley
 - Review date: 2026-04-22
 
 ## Purpose

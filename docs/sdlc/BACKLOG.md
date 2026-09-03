@@ -6,9 +6,9 @@ There are no blocking backlog items for the 2026-04-22 review release.
 ## Completed Release Items
 | ID | Title | Type | Priority | Owner | Status | Notes |
 |---|---|---|---|---|---|---|
-| SF-001 | engineering and SDLC paperwork completion | Documentation | P1 | Shannon Bryan Kelly | Done | active documentation now reflects the repo |
-| SF-002 | route and orchestrator coherence repair | Bug fix | P1 | Shannon Bryan Kelly | Done | dashboard and orchestration routes normalized |
-| SF-003 | review-release packaging | Release | P1 | Shannon Bryan Kelly | Done | review packet and branch policy finalized |
+| SF-001 | engineering and SDLC paperwork completion | Documentation | P1 | Shannon Brian Kelley | Done | active documentation now reflects the repo |
+| SF-002 | route and orchestrator coherence repair | Bug fix | P1 | Shannon Brian Kelley | Done | dashboard and orchestration routes normalized |
+| SF-003 | review-release packaging | Release | P1 | Shannon Brian Kelley | Done | review packet and branch policy finalized |
 
 ## Deferred Items
 | ID | Title | Reason Deferred | Review Date |

@@ -2,7 +2,7 @@
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
 **Template source:** ICT Institute â€” DPIA Template (CC Attribution License)
-**Prepared by:** Shannon Bryan Kelly (Data Controller)
+**Prepared by:** Shannon Brian Kelley (Data Controller)
 **Date:** April 2026
 
 ---
@@ -83,7 +83,7 @@ Processing may proceed. Must update before:
 
 | Role | Name | Date |
 |------|------|------|
-| Data Controller / Architect | Shannon Bryan Kelly | April 2026 |
+| Data Controller / Architect | Shannon Brian Kelley | April 2026 |
 
 ---
 

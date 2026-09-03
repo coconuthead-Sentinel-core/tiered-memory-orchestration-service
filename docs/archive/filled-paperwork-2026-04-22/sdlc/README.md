@@ -15,5 +15,5 @@
 - delivery handoff: `DELIVERY_HANDOFF.md`
 
 ## Ownership
-- Product owner: Shannon Bryan Kelly
+- Product owner: Shannon Brian Kelley
 - Working documentation prep: Codex

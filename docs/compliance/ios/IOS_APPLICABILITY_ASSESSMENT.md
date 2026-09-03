@@ -2,7 +2,7 @@
 
 ## Review Metadata
 - Date: 2026-04-22
-- Reviewer: Codex working session for Shannon Bryan Kelly
+- Reviewer: Codex working session for Shannon Brian Kelley
 - Repo version: `main` review-release working tree
 
 ## Evidence Reviewed

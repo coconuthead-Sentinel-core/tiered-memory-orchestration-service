@@ -2,7 +2,7 @@
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
 **Template source:** ICT Institute â€” ISO 27001:2022 (CC Attribution License)
-**Prepared by:** Shannon Bryan Kelly | **Effective:** April 2026
+**Prepared by:** Shannon Brian Kelley | **Effective:** April 2026
 
 ---
 

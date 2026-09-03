@@ -2,7 +2,7 @@
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
 **Template source:** ICT Institute â€” AI Policy Template V1.0 (CC Attribution License)
-**Adapted by:** Shannon Bryan Kelly
+**Adapted by:** Shannon Brian Kelley
 **Effective Date:** April 2026
 **Review Date:** April 2027
 
@@ -10,7 +10,7 @@
 
 ## 1. Purpose and Scope
 
-This policy governs the design, development, operation, and use of artificial intelligence within the **Sentinel Forge Cognitive AI Orchestration Platform** platform. It applies to Shannon Bryan Kelly (Architect/Owner) and any contributors or end users.
+This policy governs the design, development, operation, and use of artificial intelligence within the **Sentinel Forge Cognitive AI Orchestration Platform** platform. It applies to Shannon Brian Kelley (Architect/Owner) and any contributors or end users.
 
 ---
 

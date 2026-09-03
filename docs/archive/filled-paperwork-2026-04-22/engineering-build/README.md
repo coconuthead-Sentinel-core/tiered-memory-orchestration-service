@@ -4,7 +4,7 @@
 This directory is the repo-local implementation of the Codex engineering build paperwork shelf. It gives named homes to the architecture and governance artifacts required by the project-development paperwork package.
 
 ## Ownership
-- Owner: Shannon Bryan Kelly
+- Owner: Shannon Brian Kelley
 - Prepared with AI assistance: Codex
 - Review date: 2026-04-22
 

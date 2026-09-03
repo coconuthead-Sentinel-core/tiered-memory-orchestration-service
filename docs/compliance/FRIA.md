@@ -2,7 +2,7 @@
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
 **Template source:** ICT Institute â€” FRIA Assessment Template V2.0 (CC Attribution License)
-**Prepared by:** Shannon Bryan Kelly
+**Prepared by:** Shannon Brian Kelley
 **Date:** April 2026
 
 ---
@@ -58,7 +58,7 @@ No high-risk AI system characteristics present at current deployment scope.
 
 | Role | Name | Date |
 |------|------|------|
-| System Architect / Owner | Shannon Bryan Kelly | April 2026 |
+| System Architect / Owner | Shannon Brian Kelley | April 2026 |
 
 ---
 

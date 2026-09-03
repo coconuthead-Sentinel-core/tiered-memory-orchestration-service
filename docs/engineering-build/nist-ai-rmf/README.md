@@ -9,9 +9,9 @@
 
 ## GOVERN
 - Roles and responsibilities:
-  - Owner: Shannon Bryan Kelly
+  - Owner: Shannon Brian Kelley
   - Engineering documentation support: Codex
-  - Security disclosure owner: Shannon Bryan Kelly
+  - Security disclosure owner: Shannon Brian Kelley
   - Privacy and legal review: owner-managed for the current release
 - Policies:
   - data handling: review and compliance documents under `docs/compliance/`

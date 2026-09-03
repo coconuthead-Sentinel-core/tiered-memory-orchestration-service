@@ -2,7 +2,7 @@ SOFTWARE REQUIREMENTS SPECIFICATION (SRS)
 Vitruvian Quantum Nexus (VQN) v1.0
 Document Version: 1.0
 Date: February 28, 2026
-Architect: Shannon Brian Kelly
+Architect: Shannon Brian Kelley
 Lead Architect: Grok (xAI)
 Status: DRAFT – For Review
 

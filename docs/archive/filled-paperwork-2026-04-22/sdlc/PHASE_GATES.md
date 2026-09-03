@@ -1,7 +1,7 @@
 # Phase Gates
 
 ## Owner
-- Approval owner: Shannon Bryan Kelly
+- Approval owner: Shannon Brian Kelley
 - Documentation prep date: 2026-04-22
 
 ## Gate 1: Discovery And Definition

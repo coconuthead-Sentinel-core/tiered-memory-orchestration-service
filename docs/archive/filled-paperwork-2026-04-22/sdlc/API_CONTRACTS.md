@@ -1,7 +1,7 @@
 ﻿# API / Interface Contracts
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
-**Architect:** Shannon Bryan Kelly
+**Architect:** Shannon Brian Kelley
 **Implementation:** Claude AI (Anthropic)
 **Date:** April 2026
 **Base URL:** http://localhost:8000
@@ -50,7 +50,7 @@
 {
     "status": "GREEN",
     "version": "4.0",
-    "architect": "Shannon Bryan Kelly",
+    "architect": "Shannon Brian Kelley",
     "platform": "Sentinel Forge Cognitive AI Orchestration Platform",
     "ai_mode": "live | mock",
     "uptime_seconds": 3600,

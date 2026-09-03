@@ -1,7 +1,7 @@
 ﻿# Product Backlog
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
-**Architect:** Shannon Bryan Kelly
+**Architect:** Shannon Brian Kelley
 **Implementation:** Claude AI (Anthropic)
 **Date:** April 2026
 

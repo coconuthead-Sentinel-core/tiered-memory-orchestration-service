@@ -4,7 +4,7 @@
 This document states how project decisions, paperwork ownership, and release approvals are handled for Sentinel Forge.
 
 ## Ownership
-- Project owner: Shannon Bryan Kelly
+- Project owner: Shannon Brian Kelley
 - Repository namespace owner: `coconuthead-Sentinel-core`
 - Implementation support: AI-assisted coding and documentation workflows
 

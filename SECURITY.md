@@ -21,7 +21,7 @@ This repository contains the Sentinel Forge Cognitive AI Orchestration Platform 
 - remediation timing depends on severity, exploitability, and release risk
 
 ## Current Security Owners
-- Product owner: Shannon Bryan Kelly
+- Product owner: Shannon Brian Kelley
 - Repository maintainer of record: `coconuthead-Sentinel-core`
 - Working documentation owner: Codex-generated paperwork, subject to owner approval
 

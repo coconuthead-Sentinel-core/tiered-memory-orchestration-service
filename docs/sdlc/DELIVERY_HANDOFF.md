@@ -2,7 +2,7 @@
 
 ## Handoff Metadata
 - Date: 2026-04-22
-- Prepared by: Codex working session for Shannon Bryan Kelly
+- Prepared by: Codex working session for Shannon Brian Kelley
 - Reviewed by: pending final release pass
 - Scope: complete the repository paperwork, runtime coherence fixes, validation, and packaging on `main`
 
