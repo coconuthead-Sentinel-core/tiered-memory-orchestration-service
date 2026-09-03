@@ -80,8 +80,8 @@ class NeuralPrimeLogicLattice:
         logger.info(f"   Bridge Status: {bridge_status['status']} ({bridge_status['mode']})")
 
     def initialize_l6_ethical_firewall(self):
-        """L6: ISO 42001 & NIST AI RMF."""
-        logger.info("L6 [Ethical Firewall]: Enforcing ISO 42001 safety guardrails...")
+        """L6: safety rules informed by ISO/IEC 42001 and NIST AI RMF (design references; not audited or certified)."""
+        logger.info("L6 [Ethical Firewall]: Applying safety guardrails informed by ISO/IEC 42001...")
         self.layers["L6"] = {
             "status": "ENFORCING",
             "standards": ["ISO/IEC 42001", "NIST AI RMF"],
@@ -219,7 +219,7 @@ class NeuralPrimeLogicLattice:
             "L3": "A1 Institutional Memory (Policy Archive)",
             "L4": "Glyphic Public Interface (Transparency)",
             "L5": "Integrated Command Bridge (Emergency/Planning)",
-            "L6": "Urban Constitution (ISO 42001 Enforcement)",
+            "L6": "Urban Constitution (safety rules informed by ISO/IEC 42001)",
             "L7": "The Crystalline Mayor (Decision Support)"
         }
         for layer, func in urban_map.items():

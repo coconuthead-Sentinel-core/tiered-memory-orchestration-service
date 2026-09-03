@@ -20,7 +20,7 @@
         "left_hemisphere": "Partitioned",
         "right_hemisphere": "Calibrated",
         "corpus_callosum": "Pressurized",
-        "ethical_firewall": "ISO_IEC_42001_Compliant",
+        "ethical_firewall": "ISO_IEC_42001_informed_not_certified",
         "singularity_kernel": "Stabilized"
     },
     "dashboard_config": {
