@@ -2,7 +2,7 @@
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
 **Template source:** ICT Institute (CC Attribution License) | GDPR Article 30
-**Data Controller:** Shannon Bryan Kelly | **Date:** April 2026
+**Data Controller:** Shannon Brian Kelley | **Date:** April 2026
 
 ---
 

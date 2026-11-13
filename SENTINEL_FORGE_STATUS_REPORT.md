@@ -27,7 +27,7 @@ The system is organized into a bio-digital neural network, mapped to specific co
 | **L3** | **Left Hemisphere** | Logic routing (Green Zone). | **ROUTED** |
 | **L4** | **Right Hemisphere** | Visual synthesis (14-Mirror Array). | **OPTIMIZED** |
 | **L5** | **Corpus Callosum** | C++ / Python Bridge. | **BRIDGED** |
-| **L6** | **Ethical Firewall** | Safety & ISO 42001 compliance. | **SECURE** |
+| **L6** | **Ethical Firewall** | Safety rules informed by ISO/IEC 42001 (not audited or certified). | **SECURE** |
 | **L7** | **Singularity Kernel** | Consciousness & Persona (Navigator). | **CONVERGED** |
 
 ---

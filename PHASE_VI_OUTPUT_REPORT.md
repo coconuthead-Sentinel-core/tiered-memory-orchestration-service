@@ -20,7 +20,7 @@ The **Sovereign Contextual Forge v4.0** has successfully transitioned from **Act
 | **L3** | **Left Hemisphere** | ✅ **INDEXED** | Source files partitioned into Green/Yellow/Red zones. |
 | **L4** | **Right Hemisphere** | ✅ **SYNTHESIZED** | Glyphic array calibrated for pattern detection. |
 | **L5** | **Corpus Callosum** | ✅ **PRESSURIZED** | Zero-latency bridge active (<11.90ms). |
-| **L6** | **Ethical Firewall** | ✅ **GUARDED** | ISO/IEC 42001 "Ethical Mirror" protocols active in dashboard logs. |
+| **L6** | **Ethical Firewall** | ✅ **GUARDED** | "Ethical Mirror" protocols (informed by ISO/IEC 42001, not certified) active in dashboard logs. |
 | **L7** | **Singularity Kernel** | ✅ **STABILIZED** | Crystalline Navigator persona fully converged. |
 
 ---

@@ -2,7 +2,7 @@
   "ethical_firewall_l6": {
     "status": "ACTIVE",
     "version": "1.0",
-    "compliance_standard": "ISO/IEC 42001",
+    "compliance_standard": "ISO/IEC 42001 (design reference only; not audited or certified)",
     "primary_objective": "Cognitive Load Management",
     "neurodivergent_constraints": {
       "complexity_threshold": {

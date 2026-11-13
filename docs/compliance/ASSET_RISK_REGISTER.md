@@ -2,7 +2,7 @@
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
 **Template source:** ICT Institute â€” ISO 27001:2022 (CC Attribution License)
-**Prepared by:** Shannon Bryan Kelly | **Date:** April 2026
+**Prepared by:** Shannon Brian Kelley | **Date:** April 2026
 
 ---
 
@@ -46,10 +46,10 @@
 
 | Risk | Action | Owner | Date |
 |------|--------|-------|------|
-| R-001 | Maintain `.gitignore`; pre-commit review | Shannon Bryan Kelly | Ongoing |
-| R-002 | Enable Azure MFA | Shannon Bryan Kelly | April 2026 |
-| R-003 | Add voice recording indicator to UI | Shannon Bryan Kelly | Next sprint |
-| R-007 | Enable full disk encryption | Shannon Bryan Kelly | April 2026 |
+| R-001 | Maintain `.gitignore`; pre-commit review | Shannon Brian Kelley | Ongoing |
+| R-002 | Enable Azure MFA | Shannon Brian Kelley | April 2026 |
+| R-003 | Add voice recording indicator to UI | Shannon Brian Kelley | Next sprint |
+| R-007 | Enable full disk encryption | Shannon Brian Kelley | April 2026 |
 
 ---
 

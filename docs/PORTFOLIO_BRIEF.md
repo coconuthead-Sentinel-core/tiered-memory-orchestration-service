@@ -46,5 +46,5 @@ This is the lead artifact for senior cognitive-systems and accessibility-enginee
 
 ## Author
 
-**Shannon Brian Kelly** - Healthcare CNA -> AI Systems Developer career transition.  
+**Shannon Brian Kelley** - Healthcare CNA -> AI Systems Developer career transition.  
 Built in collaboration with Claude AI (Anthropic).

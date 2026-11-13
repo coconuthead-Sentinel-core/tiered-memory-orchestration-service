@@ -3,7 +3,7 @@
 ## Metadata
 - Product: Sentinel Forge Cognitive AI Orchestration Platform
 - Version: 2026-04-22 review release
-- Owner: Shannon Bryan Kelly
+- Owner: Shannon Brian Kelley
 - Date: 2026-04-22
 
 ## Problem Statement

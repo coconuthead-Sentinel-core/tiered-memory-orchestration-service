@@ -4,7 +4,7 @@
 - System: Sentinel Forge Cognitive AI Orchestration Platform
 - Document state: completed summary
 - Version: main branch review release
-- Authors: Shannon Bryan Kelly with Codex assistance
+- Authors: Shannon Brian Kelley with Codex assistance
 - Date: 2026-04-22
 
 ## 1. Introduction And Goals

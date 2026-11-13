@@ -203,3 +203,7 @@ PYTHONPATH=/path/to/project
 
 ## License
 MIT License. See `LICENSE`.
+
+## Standards note
+
+References to ISO/IEC 42001 and the NIST AI Risk Management Framework in this repository describe design intent only. This project has not been audited or certified against ISO/IEC 42001, and NIST AI RMF is voluntary guidance with no certification program.

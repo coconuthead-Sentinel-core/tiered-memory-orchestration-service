@@ -15,7 +15,7 @@
         }
     },
     "governance": {
-        "firewall": "ISO/IEC 42001 & NIST AI RMF Compliant",
+        "firewall": "informed by ISO/IEC 42001 and NIST AI RMF; not audited or certified",
         "mirror": "Ethical Conflict Resolution Loop"
     }
 }

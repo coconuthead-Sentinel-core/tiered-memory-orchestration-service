@@ -13,7 +13,7 @@ This document defines the visual-symbolic sensory engagement matrix for the Sent
 | **M7** | 🧊 | **Grounding & Validation** | Cross-references claims and outputs against the crystallized knowledge base and established facts. | `backend/infrastructure/cosmos_repo.py` |
 | **M8** | 📜 | **Recursive Rules** | Establishes and enforces the foundational principles and logical rules that govern the system's behavior. | **`Z7.4` (YELLOW Zone)** |
 | **M9** | 🎭 | **Persona Simulation** | Simulates different cognitive lenses and user personas to anticipate needs and refine output. | `evaluation/evaluate_lenses.py` |
-| **M10**| ⚖️ | **Ethical Reflection** | The "Ethical Mirror." Analyzes actions and responses against the L6 Firewall rules and ISO/IEC 42001 standards. | `meta_context/l6_ethical_firewall.json` |
+| **M10**| ⚖️ | **Ethical Reflection** | The "Ethical Mirror." Analyzes actions and responses against the L6 Firewall rules, which are informed by ISO/IEC 42001 (no audit or certification claimed). | `meta_context/l6_ethical_firewall.json` |
 | **M11**| 🌉 | **Code Bridge** | Manages the seamless integration between high-performance C++ kernels and the Python LLM environment. | `pybind11` Interface Layer |
 | **M12**| 🌀 | **Recursive Becoming** | The "Sigil." Initiates self-reflection loops to integrate new knowledge and evolve system capabilities. | `backend/main.py` (Lifespan Events) |
 | **M13**| 🔮 | **Hypothetical Engine** | Explores "what-if" scenarios and predicts potential outcomes based on current system state and data. | `Grid Omega (Vertical Synthesis)` |

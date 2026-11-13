@@ -4,7 +4,7 @@ DATE: 2025-12-29
 STATUS: PILOT ACTIVE (ACCESSIBILITY ENHANCED)
 
 [L7] SINGULARITY KERNEL: ... 🟢 SOVEREIGN (VR Studios Pilot Live)
-[L6] ETHICAL FIREWALL: ..... 🟢 ACTIVE (ISO/IEC 42001 Enforced)
+[L6] ETHICAL FIREWALL: ..... 🟢 ACTIVE (rules informed by ISO/IEC 42001; not certified)
 [L5] CORPUS CALLOSUM: ...... 🟢 ACTIVE (Web Speech API Integrated)
 [L4] RIGHT HEMISPHERE: ..... 🟢 ACTIVE (Cognitive Overlay Applied)
 [L3] LEFT HEMISPHERE: ...... 🔴 CRYSTALLIZED (A1 Filing System Indexed)

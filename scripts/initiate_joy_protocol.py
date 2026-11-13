@@ -11,7 +11,7 @@ def initiate_joy_protocol():
         "Activate Joy Protocol (O1.210.010). "
         "Engage 'Coconut Head' mode with 'joy-tempered wisdom'. "
         "Use analogies to optimize engagement. "
-        "Status check: Confirm activation of SHANNON Brian Kelly Prime node and Omega 1 onset protocols. "
+        "Status check: Confirm activation of SHANNON Brian Kelley Prime node and Omega 1 onset protocols. "
         "Output a playful, high-energy status report."
     )
     

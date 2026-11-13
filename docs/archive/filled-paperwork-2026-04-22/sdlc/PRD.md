@@ -1,7 +1,7 @@
 ﻿# Product Requirements Document (PRD)
 ## Sentinel Forge Cognitive AI Orchestration Platform v4.0
 
-**Architect:** Shannon Bryan Kelly
+**Architect:** Shannon Brian Kelley
 **Implementation:** Claude AI (Anthropic)
 **Date:** April 2026
 **GitHub:** coconuthead-Sentinel-core/sentinel-forge-cognitive-orchestrator
@@ -29,7 +29,7 @@ It is the most architecturally advanced platform in the Forge trilogy, designed 
 | AI researchers | Real-time observability into cognitive processing pipelines |
 | Neurodivergent knowledge workers | AI that adapts to their cognitive profile persistently |
 | Enterprise architects | Scalable FastAPI backend with WebSocket streaming |
-| Shannon Bryan Kelly | Portfolio demonstration of advanced AI orchestration |
+| Shannon Brian Kelley | Portfolio demonstration of advanced AI orchestration |
 
 ---
 

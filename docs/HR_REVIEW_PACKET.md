@@ -2,7 +2,7 @@
 
 ## Project Snapshot
 - Project: Sentinel Forge Cognitive AI Orchestration Platform
-- Owner: Shannon Bryan Kelly
+- Owner: Shannon Brian Kelley
 - Repository namespace: `coconuthead-Sentinel-core`
 - Review branch: `main`
 - Review date: 2026-04-22

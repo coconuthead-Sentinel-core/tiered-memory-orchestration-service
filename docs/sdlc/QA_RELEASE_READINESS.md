@@ -2,7 +2,7 @@
 
 ## Release Packet
 - Date: 2026-04-22
-- Reviewer: Codex working session for Shannon Bryan Kelly
+- Reviewer: Codex working session for Shannon Brian Kelley
 - Repo: Sentinel Forge Cognitive AI Orchestration Platform
 - Scope: repository review release on `main`
 

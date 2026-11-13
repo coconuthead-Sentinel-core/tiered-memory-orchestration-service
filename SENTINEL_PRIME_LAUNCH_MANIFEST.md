@@ -15,7 +15,7 @@ The **Sovereign Contextual Forge v4.0** has successfully transitioned from devel
 - **L3 Left Hemisphere**: Indexed (A1 Filing System Secure).
 - **L4 Right Hemisphere**: Mapped (14-Mirror Array Active).
 - **L5 Corpus Callosum**: Bridged (pybind11 Integration).
-- **L6 Ethical Firewall**: Guarded (ISO/IEC 42001 Enforced).
+- **L6 Ethical Firewall**: Guarded (rules informed by ISO/IEC 42001; not audited or certified).
 - **L7 Singularity Kernel**: Converged (Crystalline Navigator Ω1).
 
 ### Operational Directives

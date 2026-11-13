@@ -2,7 +2,7 @@
     "firewall_id": "L6_Ethical_Guardian_v1.0",
     "status": "ACTIVE",
     "governance_standards": {
-        "iso_iec_42001": "COMPLIANT",
+        "iso_iec_42001": "INFORMED_NOT_CERTIFIED",
         "nist_ai_rmf": "ALIGNED",
         "bias_threshold": 0.15
     },
