@@ -1,4 +1,5 @@
 import pytest
+
 from backend.services.dyslexia_lens import DyslexiaLens
 
 

@@ -23,7 +23,9 @@ class QuantumNexus:
 
     def __init__(self, blueprint: Dict[str, Any]):
         self.bp = blueprint
-        self._rc_map = (blueprint.get("great_greg_coordinates", {}) or {}).get("rc_map", {}) or {}
+        self._rc_map = (blueprint.get("great_greg_coordinates", {}) or {}).get(
+            "rc_map", {}
+        ) or {}
         self._deps = {
             d["id"]: d
             for d in (blueprint.get("dependencies") or [])
@@ -105,7 +107,11 @@ class QuantumNexus:
             r_str, c_str = rc_part.split("C", 1)
             r, c = int(r_str), int(c_str)
             for cell_name, info in self._cell_lookup.items():
-                if int(info["node"]) == node and int(info["r"]) == r and int(info["c"]) == c:
+                if (
+                    int(info["node"]) == node
+                    and int(info["r"]) == r
+                    and int(info["c"]) == c
+                ):
                     return GreatGreg(
                         cell=cell_name,
                         r=r,

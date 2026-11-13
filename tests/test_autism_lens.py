@@ -1,27 +1,33 @@
 import pytest
+
 from backend.services.autism_lens import AutismLens
+
 
 @pytest.fixture
 def lens():
     """Fixture for the AutismLens."""
     return AutismLens()
 
+
 def test_transform_simple_sentence(lens):
     """Task 5.2 Test: Test a simple sentence is transformed into a structured format."""
     text = "The system uses a database."
     result = lens.transform_context(text)
-    
+
     assert "### 🎯 Main Point" in result
     assert "The system uses a database." in result
-    assert "### 🔢 Key Details" not in result # No extra details
-    assert "### 📚 Definitions" not in result # No definitions
+    assert "### 🔢 Key Details" not in result  # No extra details
+    assert "### 📚 Definitions" not in result  # No definitions
     assert "### 🏁 Conclusion" in result
+
 
 def test_transform_with_details(lens):
     """Task 5.2 Test: Test that sentences after the first are treated as details."""
-    text = "The API has three endpoints. The first is for users. The second is for data."
+    text = (
+        "The API has three endpoints. The first is for users. The second is for data."
+    )
     result = lens.transform_context(text)
-    
+
     assert "### 🎯 Main Point" in result
     assert "The API has three endpoints." in result
     assert "### 🔢 Key Details" in result
@@ -29,6 +35,7 @@ def test_transform_with_details(lens):
     assert "2. The second is for data." in result
     assert "### 🏁 Conclusion" in result
     assert "2 supporting detail(s)" in result
+
 
 def test_transform_with_definitions(lens):
     """Task 5.2 Test: Test that 'is' and 'means' clauses are extracted as definitions."""
@@ -41,6 +48,7 @@ def test_transform_with_definitions(lens):
     assert "- **API**: Application Programming Interface." in result
     assert "3 definition(s)" in result
 
+
 def test_transform_with_bullet_points(lens):
     """Task 5.2 Test: Test that existing bullet points are recognized as details."""
     text = "The system has several components. - A frontend UI. - A backend API. - A Cosmos DB database."
@@ -52,10 +60,12 @@ def test_transform_with_bullet_points(lens):
     assert "3. - A Cosmos DB database." in result
     assert "3 supporting detail(s)" in result
 
+
 def test_transform_empty_and_whitespace_context(lens):
     """Task 5.2 Test: Test that empty or whitespace-only context is handled gracefully."""
     assert lens.transform_context("") == ""
     assert lens.transform_context("   \n\t   ") == "   \n\t   "
+
 
 def test_full_transformation(lens):
     """Task 5.2 Test: Test a complex text with all components."""

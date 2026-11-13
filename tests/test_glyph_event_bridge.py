@@ -8,22 +8,23 @@ Tests GlyphEventBridge functionality:
 """
 
 import asyncio
-import pytest
 from typing import Any, Dict, List
 
+import pytest
+
+from backend.domain.models import SymbolicMetadata
 from backend.eventbus import EventBus
 from backend.services.glyph_event_bridge import (
-    GlyphEventBridge,
-    GlyphEvent,
     GLYPH_LATTICE_MAP,
+    GlyphEvent,
+    GlyphEventBridge,
     glyph_bridge,
 )
-from backend.domain.models import SymbolicMetadata
-
 
 # ============================================================================
 # GLYPH LATTICE MAPPING TESTS
 # ============================================================================
+
 
 class TestGlyphLatticeMap:
     """Test the glyph → lattice cell mapping constants."""
@@ -82,7 +83,7 @@ class TestGlyphLatticeMap:
         """Verify diagonal dependency matches A1 → H1 → O1 → V1."""
         diagonal_glyphs = ["APEX", "CORE", "EMIT", "ROOT"]
         expected_cells = ["A1", "H1", "O1", "V1"]
-        
+
         actual_cells = [GLYPH_LATTICE_MAP[g]["cell"] for g in diagonal_glyphs]
         assert actual_cells == expected_cells
 
@@ -90,6 +91,7 @@ class TestGlyphLatticeMap:
 # ============================================================================
 # GLYPH EVENT TESTS
 # ============================================================================
+
 
 class TestGlyphEvent:
     """Test GlyphEvent dataclass."""
@@ -121,7 +123,7 @@ class TestGlyphEvent:
             applied_rules={"process": "tag:process.core"},
         )
         d = event.to_dict()
-        
+
         assert d["glyph"] == "CORE"
         assert d["cell"] == "H1"
         assert d["node"] == 2
@@ -135,6 +137,7 @@ class TestGlyphEvent:
 # ============================================================================
 # GLYPH EVENT BRIDGE TESTS
 # ============================================================================
+
 
 class TestGlyphEventBridge:
     """Test GlyphEventBridge functionality."""
@@ -152,7 +155,7 @@ class TestGlyphEventBridge:
     def test_emit_single_glyph(self, bridge):
         """Emit a single glyph event."""
         event = bridge.emit_glyph("APEX", confidence=0.9)
-        
+
         assert event is not None
         assert event.glyph == "APEX"
         assert event.cell == "A1"
@@ -163,14 +166,14 @@ class TestGlyphEventBridge:
         """Glyph names should be case-insensitive."""
         event1 = bridge.emit_glyph("apex")
         event2 = bridge.emit_glyph("ApEx")
-        
+
         assert event1.glyph == "APEX"
         assert event2.glyph == "APEX"
 
     def test_emit_unknown_glyph_returns_none(self, bridge):
         """Unknown glyphs should return None and increment unmapped counter."""
         event = bridge.emit_glyph("UNKNOWN_GLYPH")
-        
+
         assert event is None
         assert bridge._metrics["unmapped_glyphs"] == 1
 
@@ -182,19 +185,19 @@ class TestGlyphEventBridge:
             matched_seeds=["emit", "launch"],
             applied_rules={"launch": "tag:action.emit"},
         )
-        
+
         assert event.matched_seeds == ["emit", "launch"]
         assert event.applied_rules == {"launch": "tag:action.emit"}
 
     def test_diagonal_trace_emits_four_events(self, bridge):
         """Diagonal trace should emit APEX → CORE → EMIT → ROOT."""
         events = bridge.emit_diagonal_trace(confidence=1.0)
-        
+
         assert len(events) == 4
-        
+
         glyphs = [e.glyph for e in events]
         assert glyphs == ["APEX", "CORE", "EMIT", "ROOT"]
-        
+
         cells = [e.cell for e in events]
         assert cells == ["A1", "H1", "O1", "V1"]
 
@@ -203,9 +206,9 @@ class TestGlyphEventBridge:
         bridge.emit_glyph("APEX")
         bridge.emit_glyph("CORE")
         bridge.emit_glyph("UNKNOWN")
-        
+
         metrics = bridge.metrics()
-        
+
         assert metrics["events_emitted"] == 2
         assert metrics["glyphs_mapped"] == 2
         assert metrics["unmapped_glyphs"] == 1
@@ -229,6 +232,7 @@ class TestGlyphEventBridge:
 # ============================================================================
 # EVENTBUS INTEGRATION TESTS
 # ============================================================================
+
 
 class TestEventBusIntegration:
     """Test GlyphEventBridge integration with EventBus."""
@@ -254,10 +258,10 @@ class TestEventBusIntegration:
         """Events should be published to topic-specific channels."""
         # Subscribe to glyph.initiation topic
         queue = test_bus.subscribe(loop, topic="glyph.initiation", maxsize=10)
-        
+
         # Emit APEX glyph
         bridge.emit_glyph("APEX")
-        
+
         # Check queue has event (via call_soon_threadsafe delivery)
         # Note: In real async context, we'd await; here we check bus metrics
         assert test_bus.status()["published"] >= 1
@@ -265,9 +269,9 @@ class TestEventBusIntegration:
     def test_events_also_published_to_catchall(self, bridge, test_bus, loop):
         """Events should also go to catch-all 'glyph' topic."""
         queue = test_bus.subscribe(loop, topic="glyph", maxsize=10)
-        
+
         bridge.emit_glyph("CORE")
-        
+
         # Published at least once (topic-specific + catch-all)
         assert test_bus.status()["published"] >= 1
 
@@ -275,6 +279,7 @@ class TestEventBusIntegration:
 # ============================================================================
 # SYMBOLIC METADATA INTEGRATION TESTS
 # ============================================================================
+
 
 class TestMetadataIntegration:
     """Test emit_from_metadata functionality."""
@@ -309,9 +314,9 @@ class TestMetadataIntegration:
             dominant_topic="initiation",
             symbolic_tags={"tag:initiation"},
         )
-        
+
         events = bridge.emit_from_metadata(metadata)
-        
+
         assert len(events) == 2
         assert events[0].glyph == "APEX"
         assert events[0].confidence == 0.95
@@ -324,15 +329,16 @@ class TestMetadataIntegration:
             dominant_topic=None,
             symbolic_tags=set(),
         )
-        
+
         events = bridge.emit_from_metadata(metadata)
-        
+
         assert events == []
 
 
 # ============================================================================
 # SINGLETON INSTANCE TESTS
 # ============================================================================
+
 
 class TestSingletonBridge:
     """Test the singleton glyph_bridge instance."""
@@ -345,4 +351,5 @@ class TestSingletonBridge:
     def test_singleton_uses_global_bus(self):
         """Singleton should use the global EventBus."""
         from backend.eventbus import bus
+
         assert glyph_bridge._bus is bus

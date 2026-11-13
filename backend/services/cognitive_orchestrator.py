@@ -14,37 +14,24 @@ Architecture:
 
 from __future__ import annotations
 
-import logging
-from typing import Dict, Any, Optional, List
 import asyncio
+import logging
+from typing import Any, Dict, List, Optional
 
-# NEW: Import QuantumNexusForge for brain modeling
-from quantum_nexus_forge_v5_2_enhanced import QuantumNexusForge
-
-from backend.services.chat_service import ChatService
+from backend.core.bridge import bridge
+from backend.core.calculus import calculus_core as calculus
+from backend.core.hal import hal
 from backend.domain.models import (
-    Note,
-    ZonedNote,
-    MemoryZone,
     CognitiveLens,
-    ZoneMetrics,
-    SymbolicMetadata,
     GlyphMatch,
+    MemoryZone,
+    Note,
+    SymbolicMetadata,
+    ZonedNote,
+    ZoneMetrics,
 )
-from backend.services.memory_zones import (
-    ThreeZoneMemory,
-    calculate_entropy,
-    classify_zone,
-    get_memory_manager,
-)
-from backend.services.glyph_processor import (
-    GlyphProcessor,
-    get_glyph_processor,
-)
-from backend.services.glyph_parser import (
-    parse_glyph_sequence,
-    get_concept_for_glyph,
-)
+from backend.eventbus import bus
+from backend.infrastructure.cosmos_repo import cosmos_repo
 from backend.services.adhd_lens import (
     ADHDLens,
     create_adhd_lens,
@@ -53,17 +40,30 @@ from backend.services.autism_lens import (
     AutismLens,
     create_autism_lens,
 )
+from backend.services.chat_service import ChatService
 from backend.services.dyslexia_lens import (
     DyslexiaLens,
     create_dyslexia_lens,
 )
+from backend.services.glyph_parser import (
+    get_concept_for_glyph,
+    parse_glyph_sequence,
+)
+from backend.services.glyph_processor import (
+    GlyphProcessor,
+    get_glyph_processor,
+)
 from backend.services.l6_firewall import l6_firewall
-from backend.core.hal import hal
+from backend.services.memory_zones import (
+    ThreeZoneMemory,
+    calculate_entropy,
+    classify_zone,
+    get_memory_manager,
+)
 from backend.services.validation_loop import validator
-from backend.core.bridge import bridge
-from backend.core.calculus import calculus_core as calculus
-from backend.infrastructure.cosmos_repo import cosmos_repo
-from backend.eventbus import bus
+
+# NEW: Import QuantumNexusForge for brain modeling
+from quantum_nexus_forge_v5_2_enhanced import QuantumNexusForge
 
 logger = logging.getLogger(__name__)
 
@@ -74,20 +74,21 @@ CognitiveZone = MemoryZone  # Alias
 
 # --- Main Orchestrator ---
 
+
 class CognitiveOrchestrator(ChatService):
     """
     Enhanced middle layer orchestrating the Cognitive Pipeline:
-    
+
     1. Input Analysis (entropy calculation)
     2. Zone Classification (active/pattern/crystal)
     3. Context Retrieval (zone-aware memory)
     4. AI Processing (lens-adjusted generation)
     5. Memory Consolidation (zone-tagged storage)
     6. Event Publishing (real-time updates)
-    
+
     Inherits all ChatService behavior - safe extension.
     """
-    
+
     def __init__(
         self,
         ai_adapter,
@@ -97,7 +98,7 @@ class CognitiveOrchestrator(ChatService):
     ):
         """
         Initialize CognitiveOrchestrator.
-        
+
         Args:
             ai_adapter: Mock or Azure OpenAI adapter (inherited)
             default_lens: Default cognitive processing mode
@@ -114,18 +115,22 @@ class CognitiveOrchestrator(ChatService):
         self._zone_counts = {zone: 0 for zone in CognitiveZone}
         self._event_bus_task: Optional[asyncio.Task] = None
         self._event_bus_queue: Optional[asyncio.Queue] = None
-        
+
         # NEW: Initialize QuantumNexusForge for brain modeling
         self.quantum_forge = QuantumNexusForge()
-        
-        logger.info(f"🧠 CognitiveOrchestrator initialized with lens: {default_lens.value} and QuantumNexusForge")
+
+        logger.info(
+            f"🧠 CognitiveOrchestrator initialized with lens: {default_lens.value} and QuantumNexusForge"
+        )
 
     def start_event_listener(self):
         """Start listening to the event bus for raw events."""
         if self._event_bus_task is None:
             loop = asyncio.get_event_loop()
             self._event_bus_queue = bus.subscribe(loop, topic="raw_events")
-            self._event_bus_task = loop.create_task(self._process_event_queue(self._event_bus_queue))
+            self._event_bus_task = loop.create_task(
+                self._process_event_queue(self._event_bus_queue)
+            )
             logger.info("👂 Event bus listener started for 'raw_events' topic.")
 
     def stop_event_listener(self):
@@ -148,12 +153,14 @@ class CognitiveOrchestrator(ChatService):
             try:
                 event = await queue.get()
                 logger.debug(f"📬 Received raw event: {event}")
-                
+
                 # Pass the event to the GlyphProcessor
                 symbolic_metadata = self.glyph_processor.process_event(event)
-                
+
                 if symbolic_metadata and symbolic_metadata.matched_glyphs:
-                    logger.info(f"🜂 Processed event and found {len(symbolic_metadata.matched_glyphs)} glyphs.")
+                    logger.info(
+                        f"🜂 Processed event and found {len(symbolic_metadata.matched_glyphs)} glyphs."
+                    )
                     # Here we can trigger cognitive functions based on the glyph
                     await self._react_to_glyphs(symbolic_metadata)
 
@@ -184,7 +191,7 @@ class CognitiveOrchestrator(ChatService):
             asyncio.create_task(
                 self.process_message(
                     "New initiation event detected. Provide a brief, high-level summary.",
-                    lens=CognitiveLens.ADHD_BURST
+                    lens=CognitiveLens.ADHD_BURST,
                 )
             )
         elif dominant_topic == "ethics":
@@ -193,7 +200,7 @@ class CognitiveOrchestrator(ChatService):
             asyncio.create_task(
                 self.process_message(
                     "An ethics-related event has been flagged. Perform a detailed analysis of the implications.",
-                    lens=CognitiveLens.AUTISM_PRECISION
+                    lens=CognitiveLens.AUTISM_PRECISION,
                 )
             )
         elif dominant_topic == "stability":
@@ -202,12 +209,11 @@ class CognitiveOrchestrator(ChatService):
             asyncio.create_task(
                 self.process_message(
                     "A system stability event occurred. Visualize the relationships and overall system state.",
-                    lens=CognitiveLens.DYSLEXIA_SPATIAL
+                    lens=CognitiveLens.DYSLEXIA_SPATIAL,
                 )
             )
         else:
             logger.debug(f"No specific reaction defined for topic: {dominant_topic}")
-
 
     async def process_message(
         self,
@@ -217,55 +223,67 @@ class CognitiveOrchestrator(ChatService):
     ) -> Dict[str, Any]:
         """
         Process a user message through the enhanced Cognitive Pipeline.
-        
+
         Extends ChatService.process_message with:
         - Entropy-based zone classification
         - Symbolic pattern recognition
         - Lens-adjusted processing
         - Zone transition events
-        
+
         Args:
             user_message: The user's input text
             context: Optional system context
             lens: Cognitive lens to apply (defaults to self.default_lens)
-        
+
         Returns:
             Standard chat completion response with added zone metadata
         """
         # 0. L6 Firewall Check (Ethical Mirror)
         if not l6_firewall.validate_request(user_message):
-            logger.warning("🛡️ L6 Firewall blocked request due to Ethical Mirror violation.")
+            logger.warning(
+                "🛡️ L6 Firewall blocked request due to Ethical Mirror violation."
+            )
             # In a real scenario, we might raise an exception or return a canned response.
             # For now, we proceed but log it, as the validator is currently permissive.
 
         # 0.1 L1 HAL Check (Brain Stem)
         hal_status = hal.get_anchor_status()
         if hal_status["status"] != "ANCHORED":
-             logger.warning(f"⚠️ L1 HAL Warning: System not anchored. Status: {hal_status}")
+            logger.warning(
+                f"⚠️ L1 HAL Warning: System not anchored. Status: {hal_status}"
+            )
 
         active_lens = lens or self.default_lens
-        
+
         # 1. Calculate input entropy
         input_entropy = calculate_entropy(user_message)
         input_zone = classify_zone(input_entropy)
-        
-        logger.debug(f"📊 Input entropy: {input_entropy:.2f} → Zone: {input_zone.value}")
-        
+
+        logger.debug(
+            f"📊 Input entropy: {input_entropy:.2f} → Zone: {input_zone.value}"
+        )
+
         # 2. Process symbolic patterns
         symbolic_metadata = self.glyph_processor.process_text(user_message)
-        
-        logger.debug(f"🜂 Symbolic processing: {len(symbolic_metadata.matched_glyphs)} matches")
-        
+
+        logger.debug(
+            f"🜂 Symbolic processing: {len(symbolic_metadata.matched_glyphs)} matches"
+        )
+
         # 2.5. Parse glyph sequences in the message
         glyph_parse_result = parse_glyph_sequence(user_message)
-        
-        logger.debug(f"🜂 Glyph parsing: {glyph_parse_result['parsed_count']} glyphs parsed")
+
+        logger.debug(
+            f"🜂 Glyph parsing: {glyph_parse_result['parsed_count']} glyphs parsed"
+        )
 
         # 2.6 L5 Bridge Processing (Corpus Callosum)
         # Simulates high-performance C++ interop for heavy lifting
-        bridge_result = bridge.process_data({"text": user_message, "entropy": input_entropy})
+        bridge_result = bridge.process_data(
+            {"text": user_message, "entropy": input_entropy}
+        )
         logger.debug(f"🌉 L5 Bridge Result: {bridge_result}")
-        
+
         # 3. Apply lens transformation to context
         adjusted_context = self._apply_lens(context, active_lens)
 
@@ -273,9 +291,13 @@ class CognitiveOrchestrator(ChatService):
         try:
             response = await super().process_message(user_message, adjusted_context)
             response["provider"] = type(self.ai_adapter).__name__
-            response["live_response"] = type(self.ai_adapter).__name__ == "AzureOpenAIAdapter"
+            response["live_response"] = (
+                type(self.ai_adapter).__name__ == "AzureOpenAIAdapter"
+            )
         except Exception as e:
-            logger.warning(f"⚠️ Primary AI adapter failed, falling back to QuantumNexusForge: {e}")
+            logger.warning(
+                f"⚠️ Primary AI adapter failed, falling back to QuantumNexusForge: {e}"
+            )
             try:
                 forge_result = await asyncio.get_event_loop().run_in_executor(
                     None,
@@ -297,6 +319,7 @@ class CognitiveOrchestrator(ChatService):
 **Next Step:** Review output and provide feedback for refinement.
 """
             import time
+
             response = {
                 "id": f"chat-{int(time.time())}",
                 "model": "sentinel-forge-cognitive",
@@ -306,20 +329,18 @@ class CognitiveOrchestrator(ChatService):
                 "choices": [
                     {
                         "index": 0,
-                        "message": {
-                            "role": "assistant",
-                            "content": structured_content
-                        },
-                        "finish_reason": "stop"
+                        "message": {"role": "assistant", "content": structured_content},
+                        "finish_reason": "stop",
                     }
                 ],
                 "usage": {
                     "prompt_tokens": len(user_message.split()),
                     "completion_tokens": len(structured_content.split()),
-                    "total_tokens": len(user_message.split()) + len(structured_content.split())
-                }
+                    "total_tokens": len(user_message.split())
+                    + len(structured_content.split()),
+                },
             }
-        
+
         # 5. Extract response text and calculate output entropy
         choices = response.get("choices", [])
         if choices:
@@ -329,17 +350,19 @@ class CognitiveOrchestrator(ChatService):
             ai_text = l6_firewall.apply_constraints(ai_text, lens=active_lens.value)
             choices[0]["message"]["content"] = ai_text
             # --------------------------------------
-            
+
             output_entropy = calculate_entropy(ai_text)
             output_zone = classify_zone(output_entropy)
 
             # 5.1 L2 Validation Loop (Cerebellum)
             validation_result = validator.validate_output(ai_text)
             if not validation_result["consensus"]:
-                 logger.warning(f"⚠️ L2 Validation Failed: {validation_result['status']}")
-            
+                logger.warning(f"⚠️ L2 Validation Failed: {validation_result['status']}")
+
             # 5.2 L7 Singularity Metric (Singularity Kernel)
-            singularity_metric = calculus.calculate_singularity_metric(input_entropy, output_entropy)
+            singularity_metric = calculus.calculate_singularity_metric(
+                input_entropy, output_entropy
+            )
             logger.info(f"🌌 L7 Singularity Metric: {singularity_metric}")
 
         else:
@@ -348,10 +371,10 @@ class CognitiveOrchestrator(ChatService):
             output_zone = CognitiveZone.CRYSTALLIZED
             validation_result = {"consensus": False, "status": "NO_OUTPUT"}
             singularity_metric = 0.0
-        
+
         # 6. Update zone counts
         self._zone_counts[output_zone] += 1
-        
+
         # 7. Publish zone event (for real-time dashboards)
         self._publish_zone_event(
             note_id=response.get("id", "unknown"),
@@ -359,21 +382,21 @@ class CognitiveOrchestrator(ChatService):
             output_zone=output_zone,
             entropy=output_entropy,
         )
-        
+
         # 8. Publish symbolic event if matches found
         if symbolic_metadata.matched_glyphs:
             self._publish_symbolic_event(
                 note_id=response.get("id", "unknown"),
                 symbolic_metadata=symbolic_metadata,
             )
-        
+
         # 8.5. Publish glyph parsing event if glyphs found
         if glyph_parse_result["parsed"]:
             self._publish_glyph_event(
                 note_id=response.get("id", "unknown"),
                 glyph_data=glyph_parse_result,
             )
-        
+
         # 9. Add cognitive metadata to response
         response["_cognitive_metadata"] = {
             "input_entropy": round(input_entropy, 3),
@@ -388,13 +411,13 @@ class CognitiveOrchestrator(ChatService):
             "validation_status": validation_result["consensus"],
             "singularity_metric": singularity_metric,
         }
-        
+
         return response
 
     def _apply_lens(self, context: str, lens: CognitiveLens) -> str:
         """
         Apply cognitive lens transformation to context.
-        
+
         Now implements ADHD Burst, Autism Precision, and Dyslexia Spatial lenses.
         """
         if lens == CognitiveLens.ADHD_BURST:
@@ -412,7 +435,7 @@ class CognitiveOrchestrator(ChatService):
             transformed = self.dyslexia_lens.transform_context(context)
             logger.debug("🧠 Applied Dyslexia Spatial lens transformation")
             return transformed
-        
+
         # Default: return context unchanged
         return context
 
@@ -432,7 +455,7 @@ class CognitiveOrchestrator(ChatService):
                 "output_zone": output_zone.value,
                 "entropy": round(entropy, 3),
                 "zone_counts": {k.value: v for k, v in self._zone_counts.items()},
-            }
+            },
         }
         try:
             bus.publish(event, topic="cognitive")
@@ -447,7 +470,7 @@ class CognitiveOrchestrator(ChatService):
         """Publish symbolic pattern match event to EventBus."""
         if not symbolic_metadata.matched_glyphs:
             return
-            
+
         event = {
             "type": "symbolic.matched",
             "data": {
@@ -462,7 +485,7 @@ class CognitiveOrchestrator(ChatService):
                     for glyph in symbolic_metadata.matched_glyphs
                 ],
                 "dominant_topic": symbolic_metadata.dominant_topic,
-            }
+            },
         }
         try:
             bus.publish(event, topic="symbolic")
@@ -486,7 +509,7 @@ class CognitiveOrchestrator(ChatService):
                 "concepts": glyph_data["concepts"],
                 "parsed_count": glyph_data["parsed_count"],
                 "sequence_length": glyph_data["sequence_length"],
-            }
+            },
         }
         try:
             bus.publish(event, topic="glyph")
@@ -511,14 +534,17 @@ class CognitiveOrchestrator(ChatService):
 
 # --- Factory Function (Optional convenience) ---
 
-def create_orchestrator(ai_adapter, lens: str = "neurotypical") -> CognitiveOrchestrator:
+
+def create_orchestrator(
+    ai_adapter, lens: str = "neurotypical"
+) -> CognitiveOrchestrator:
     """
     Factory function to create CognitiveOrchestrator with string lens name.
-    
+
     Args:
         ai_adapter: The AI adapter (Mock or Azure)
         lens: Lens name as string ("neurotypical", "adhd", "autism", "dyslexia")
-    
+
     Returns:
         Configured CognitiveOrchestrator instance
     """

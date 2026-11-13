@@ -7,7 +7,11 @@ from urllib.parse import urlparse
 
 import httpx
 
-from backend.adapters.azure_openai import AIO_TIMEOUT, AzureCognitiveTokenProvider, AzureOpenAIAdapter
+from backend.adapters.azure_openai import (
+    AIO_TIMEOUT,
+    AzureCognitiveTokenProvider,
+    AzureOpenAIAdapter,
+)
 from backend.core.config import settings
 from backend.mock_adapter import MockOpenAIAdapter
 
@@ -47,7 +51,9 @@ class AIRuntime:
             self._selected_provider = "mock"
             self._auth_method = "mock"
             self._auth_ready = False
-            self._auth_detail = "AOAI_ENDPOINT is missing, so live Azure scoring is unavailable."
+            self._auth_detail = (
+                "AOAI_ENDPOINT is missing, so live Azure scoring is unavailable."
+            )
             return
 
         self._http_client = httpx.AsyncClient(timeout=AIO_TIMEOUT)
@@ -55,7 +61,9 @@ class AIRuntime:
         self._endpoint_host = urlparse(settings.AOAI_ENDPOINT).netloc
 
         if settings.AOAI_KEY:
-            self._adapter = AzureOpenAIAdapter(self._http_client, api_key=settings.AOAI_KEY)
+            self._adapter = AzureOpenAIAdapter(
+                self._http_client, api_key=settings.AOAI_KEY
+            )
             self._auth_method = "api_key"
             self._auth_ready = None
             self._auth_detail = "Azure OpenAI API key configured. A model request is required to validate the key."
@@ -63,7 +71,9 @@ class AIRuntime:
             return
 
         self._token_provider = AzureCognitiveTokenProvider()
-        self._adapter = AzureOpenAIAdapter(self._http_client, token_provider=self._token_provider)
+        self._adapter = AzureOpenAIAdapter(
+            self._http_client, token_provider=self._token_provider
+        )
         self._auth_method = "aad"
         self._auth_ready = None
         self._auth_detail = "Azure OpenAI AAD mode selected. Run a readiness probe to validate credentials."
@@ -127,7 +137,9 @@ class AIRuntime:
 
 
 def _summarize_auth_error(exc: Exception) -> str:
-    first_line = str(exc).strip().splitlines()[0] if str(exc).strip() else type(exc).__name__
+    first_line = (
+        str(exc).strip().splitlines()[0] if str(exc).strip() else type(exc).__name__
+    )
     return first_line
 
 

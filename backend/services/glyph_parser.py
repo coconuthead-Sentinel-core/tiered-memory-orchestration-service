@@ -9,7 +9,7 @@ Architecture:
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -21,17 +21,14 @@ GLYPH_MAP = {
     "🌐": "meta_context",
     "🔭": "observation_mode",
     "🌀": "cognitive_flow",
-
     # Action pulse symbols
     "🜂": "action_pulse",
     "⚙️": "processing_gear",
     "🔺": "initiation_triangle",
-
     # Memory zone symbols
     "🟢": "active_zone",
     "🟡": "pattern_zone",
     "🔴": "crystal_zone",
-
     # Cognitive lens symbols
     "🧠": "neurotypical_mode",
     "⚡": "adhd_burst",
@@ -68,7 +65,7 @@ def parse_glyph_sequence(sequence: str) -> Dict[str, Any]:
         "glyphs": parsed_glyphs,
         "concepts": concepts,
         "sequence_length": len(sequence),
-        "parsed_count": len(parsed_glyphs)
+        "parsed_count": len(parsed_glyphs),
     }
 
 

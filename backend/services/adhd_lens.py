@@ -12,7 +12,7 @@ Architecture:
 
 import logging
 import re
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +32,17 @@ class ADHDLens:
     CHUNK_SIZE_WORDS = 50
     MAX_SENTENCES_PER_CHUNK = 4
     BULLET_MARKERS = ["⚡", "💥", "🚀", "🔥", "⚡", "💫", "⭐", "🎯"]
-    ACTION_WORDS = ["start", "begin", "launch", "create", "build", "run", "execute", "activate"]
-    
+    ACTION_WORDS = [
+        "start",
+        "begin",
+        "launch",
+        "create",
+        "build",
+        "run",
+        "execute",
+        "activate",
+    ]
+
     # Odooe Lattice Integration
     ODOOE_LATTICE_ENABLED = True
     MIRROR_ID = "M6"  # Burst Processing
@@ -72,7 +81,9 @@ class ADHDLens:
         # Join with ADHD-friendly formatting
         transformed = "\n\n".join(bullet_points)
 
-        logger.debug(f"🧠 ADHD lens transformed {len(sentences)} sentences into {len(chunks)} chunks")
+        logger.debug(
+            f"🧠 ADHD lens transformed {len(sentences)} sentences into {len(chunks)} chunks"
+        )
         return transformed
 
     def transform_response(self, response: str) -> str:
@@ -94,7 +105,7 @@ class ADHDLens:
     def _split_into_sentences(self, text: str) -> List[str]:
         """Split text into sentences."""
         # Simple sentence splitting (can be enhanced)
-        sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+        sentences = re.split(r"(?<=[.!?])\s+", text.strip())
         return [s.strip() for s in sentences if s.strip()]
 
     def _create_chunks(self, sentences: List[str]) -> List[str]:
@@ -107,12 +118,9 @@ class ADHDLens:
             sentence_words = len(sentence.split())
 
             # If adding this sentence would exceed chunk size, start new chunk
-            if (
-                current_chunk
-                and (
-                    current_word_count + sentence_words > self.chunk_size
-                    or len(current_chunk) >= self.max_sentences_per_chunk
-                )
+            if current_chunk and (
+                current_word_count + sentence_words > self.chunk_size
+                or len(current_chunk) >= self.max_sentences_per_chunk
             ):
                 chunks.append(" ".join(current_chunk))
                 current_chunk = []
@@ -148,8 +156,10 @@ class ADHDLens:
 
         for word in self.ACTION_WORDS:
             # Add emphasis to action words (case-insensitive)
-            pattern = r'\b' + re.escape(word) + r'\b'
-            enhanced = re.sub(pattern, f"**{word.upper()}**", enhanced, flags=re.IGNORECASE)
+            pattern = r"\b" + re.escape(word) + r"\b"
+            enhanced = re.sub(
+                pattern, f"**{word.upper()}**", enhanced, flags=re.IGNORECASE
+            )
 
         return enhanced
 
@@ -168,6 +178,7 @@ class ADHDLens:
 
 
 # --- Convenience Functions ---
+
 
 def create_adhd_lens() -> ADHDLens:
     """Create and return a configured ADHD lens instance."""

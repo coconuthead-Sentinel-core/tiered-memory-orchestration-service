@@ -43,4 +43,3 @@ def test_eventbus_latest_policy_keeps_newest():
     finally:
         bus.close()
         loop.close()
-

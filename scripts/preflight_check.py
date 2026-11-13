@@ -22,6 +22,7 @@ try:
     from dotenv import load_dotenv
 except ImportError:  # pragma: no cover
     print("[WARN] python-dotenv not installed; continuing without .env auto-load.")
+
     def load_dotenv(path: str) -> None:  # type: ignore
         return None
 
@@ -63,7 +64,9 @@ def check_tcp(host: str, port: int, timeout: float = 3.0) -> bool:
             return False
 
 
-def http_ping(url: str, headers: Optional[Dict[str, str]] = None, verify: bool = True) -> Tuple[bool, Optional[int], Optional[str]]:
+def http_ping(
+    url: str, headers: Optional[Dict[str, str]] = None, verify: bool = True
+) -> Tuple[bool, Optional[int], Optional[str]]:
     try:
         resp = requests.get(url, headers=headers, timeout=5, verify=verify)
         return True, resp.status_code, resp.reason

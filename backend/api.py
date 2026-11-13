@@ -1,31 +1,50 @@
-from typing import Any, List, Dict, Union
 import json
 import logging
+import time
 import uuid
 from pathlib import Path
-import time
+from typing import Any, Dict, List, Union
 
-from fastapi import APIRouter, HTTPException, Depends, Body, Response, status, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, Response, status
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from .schemas import (
-    JobStatusResponse, PoolCreateRequest, ProcessRequest, ProcessResponse,
-    RebuildRequest, StatusResponse, StressRequest, StressResult,
-    JobSubmitResponse, SymbolicRules, SetRulesRequest, MemorySnapshot,
-    PrimeMetrics, Suggestions, SyncUpdateRequest, SyncSnapshot,
-    GlyphValidateRequest, GlyphValidateResponse, BootStep, ChatRequest,
-    ChatResponse, EmbeddingsRequest, EmbeddingsResponse,
-)
-from .service import service
-from .core.security import api_key_guard
+
 from .core.config import settings
-from .runtime_ai import ai_runtime
-from .eventbus import bus
+from .core.security import api_key_guard
 
 # NEW: Import Domain, Infrastructure, and Services
 from .domain.models import Note
+from .eventbus import bus
 from .infrastructure.cosmos_repo import cosmos_repo
+from .runtime_ai import ai_runtime
+from .schemas import (
+    BootStep,
+    ChatRequest,
+    ChatResponse,
+    EmbeddingsRequest,
+    EmbeddingsResponse,
+    GlyphValidateRequest,
+    GlyphValidateResponse,
+    JobStatusResponse,
+    JobSubmitResponse,
+    MemorySnapshot,
+    PoolCreateRequest,
+    PrimeMetrics,
+    ProcessRequest,
+    ProcessResponse,
+    RebuildRequest,
+    SetRulesRequest,
+    StatusResponse,
+    StressRequest,
+    StressResult,
+    Suggestions,
+    SymbolicRules,
+    SyncSnapshot,
+    SyncUpdateRequest,
+)
+from .service import service
+
 # from .services.chat_service import ChatService
 from .services.cognitive_orchestrator import CognitiveOrchestrator
 from .services.memory_zones import get_memory_manager
@@ -42,6 +61,7 @@ _orchestrator = CognitiveOrchestrator(_adapter)
 # # _chat_service = ChatService(_adapter)  # Old ChatService
 # _chat_service = ChatService(_adapter)  # Temporarily use old service
 
+
 @router.get("/dashboard/nexus-metrics")
 async def get_nexus_dashboard_metrics():
     """
@@ -52,14 +72,19 @@ async def get_nexus_dashboard_metrics():
     status_data = await run_in_threadpool(service.status)
     metrics_data = await run_in_threadpool(service.metrics)
     avg_latency = float(metrics_data.get("avg_latency_ms", 0.0) or 0.0)
-    health_status = "green" if avg_latency < 50 else "yellow" if avg_latency < 100 else "red"
+    health_status = (
+        "green" if avg_latency < 50 else "yellow" if avg_latency < 100 else "red"
+    )
     return {
         "health_status": health_status,
         "clarity_score": round(max(0.0, 1.0 - min(avg_latency / 100.0, 1.0)), 3),
         "uptime_rating": 0.997,
-        "entropy_state": "CRYSTALLIZED" if status_data.get("total_executions", 0) else "ACTIVE",
+        "entropy_state": (
+            "CRYSTALLIZED" if status_data.get("total_executions", 0) else "ACTIVE"
+        ),
         "active_nodes": status_data.get("total_processors", 0),
     }
+
 
 @router.get("/dashboard/nexus", response_class=HTMLResponse)
 async def get_nexus_dashboard(request: Request):
@@ -67,6 +92,7 @@ async def get_nexus_dashboard(request: Request):
     Serves the Recursive Nexus Sigil Dashboard (Phase I Synapse).
     """
     return templates.TemplateResponse("recursive_nexus.html", {"request": request})
+
 
 @router.get("/cognitive/status")
 async def get_cognitive_status():
@@ -108,7 +134,9 @@ async def get_ai_readiness():
     if not ai_status["verified_live_access"]:
         blockers.append("Azure OpenAI live scoring is not verified on this machine.")
     if not storage_status["verified_live_storage"]:
-        blockers.append("Persistence is not running against Azure Cosmos DB cloud storage.")
+        blockers.append(
+            "Persistence is not running against Azure Cosmos DB cloud storage."
+        )
 
     return {
         "market_ready": not blockers,
@@ -116,6 +144,7 @@ async def get_ai_readiness():
         "ai": ai_status,
         "storage": storage_status,
     }
+
 
 @router.post("/task/orchestrate/start")
 async def start_task_orchestration():
@@ -128,11 +157,16 @@ async def start_task_orchestration():
         "lenses": ["neurotypical", "adhd", "autism", "dyslexia"],
     }
 
+
 @router.post("/task/orchestrate/stop")
 async def stop_task_orchestration():
     """Stop the shared raw-event orchestration listener."""
     _orchestrator.stop_event_listener()
-    return {"status": "stopped", "listener_running": _orchestrator.is_event_listener_running()}
+    return {
+        "status": "stopped",
+        "listener_running": _orchestrator.is_event_listener_running(),
+    }
+
 
 # --- AI Routes ---
 # @ai_router.post("/chat")
@@ -141,6 +175,7 @@ async def stop_task_orchestration():
 #     Process a chat request through the Cognitive Pipeline.
 #     """
 #     return {"test": "response"}
+
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
@@ -151,7 +186,7 @@ async def chat(req: ChatRequest):
     """
     try:
         user_msg = req.messages[-1].content if req.messages else ""
-        
+
         # Step 1: Voice input (or text) - captured here
         if user_msg:
             uismt.thread_input(user_msg, input_type="chat")
@@ -159,12 +194,17 @@ async def chat(req: ChatRequest):
         # Step 2-5: AI processing, Memory zoning, Glyph visualization, Structured output
         response = await _orchestrator.process_message(
             user_message=user_msg,
-            context=req.messages[0].content if len(req.messages) > 1 and req.messages[0].role == "system" else "",
+            context=(
+                req.messages[0].content
+                if len(req.messages) > 1 and req.messages[0].role == "system"
+                else ""
+            ),
         )
         return ChatResponse(**response)
     except Exception as e:
         logging.error(f"Error in chat: {e}")
         raise
+
 
 # @ai_router.post("/embeddings", response_model=EmbeddingsResponse)
 # async def embeddings(req: EmbeddingsRequest):
@@ -184,15 +224,18 @@ async def chat(req: ChatRequest):
 
 # --- Nexus Notes (Refactored to use Repository) ---
 
+
 @router.get("/notes")
 async def notes_list() -> Any:
     """Lists all notes from Cosmos DB via Repository."""
     return await cosmos_repo.get_all_notes()
 
+
 @router.post("/notes/upsert")
 async def notes_upsert(payload: dict = Body(...)) -> Any:
     """Creates or updates a note via Repository."""
     import uuid
+
     # Create Domain Model
     note_id = payload.get("id") or str(uuid.uuid4())
     try:
@@ -200,7 +243,7 @@ async def notes_upsert(payload: dict = Body(...)) -> Any:
             text=payload.get("text"),
             tag=payload.get("tag"),
             vector=payload.get("vec"),
-            metadata=payload.get("metadata", {})
+            metadata=payload.get("metadata", {}),
         )
         note.id = note_id
         result = await cosmos_repo.upsert_note(note)
@@ -210,9 +253,11 @@ async def notes_upsert(payload: dict = Body(...)) -> Any:
         logging.warning(f"DB unavailable, returning mock: {e}")
         return {"id": note_id, "status": "mock_saved", "text": payload.get("text")}
 
+
 @router.get("/test")
 def test_endpoint():
     return {"ok": True}
+
 
 # --- Existing Routes (Legacy Service) ---
 @router.get("/status", response_model=StatusResponse)
@@ -224,7 +269,7 @@ async def get_status() -> Any:
 async def get_metrics() -> Any:
     """
     Phase 2 Enhanced Metrics Endpoint (dep_AllFiles_L2R_to_Z1)
-    
+
     Data Domains:
     - memory_zones: Three-zone memory system metrics (active/pattern/crystallized)
     - cognitive_lenses: Cognitive lens usage and statistics
@@ -233,25 +278,26 @@ async def get_metrics() -> Any:
     # Get baseline metrics from service
     base_metrics = await run_in_threadpool(service.metrics)
     status_data = await run_in_threadpool(service.status)
-    
+
     # Get Three-Zone Memory Manager metrics
     memory_manager = get_memory_manager()
     zone_metrics = memory_manager.get_metrics()
     zone_distribution = memory_manager.get_zone_distribution()
-    
+
     # Get cognitive orchestrator stats
     cog_status = await run_in_threadpool(service.cog_status)
-    
+
     # Determine system health status
     avg_latency = base_metrics.get("avg_latency_ms", 0)
-    health_status = "green" if avg_latency < 50 else "yellow" if avg_latency < 100 else "red"
-    
+    health_status = (
+        "green" if avg_latency < 50 else "yellow" if avg_latency < 100 else "red"
+    )
+
     # Build enhanced Phase 2 metrics response
     enhanced_metrics = {
         "timestamp": time.time(),
         "phase": "2",
         "blueprint_mapping": "dep_AllFiles_L2R_to_Z1",
-        
         # Memory Zones Domain (from quantum_nexus_forge_v5_2_enhanced.py)
         "memory_zones": {
             "active_count": zone_metrics.active_count,
@@ -265,7 +311,6 @@ async def get_metrics() -> Any:
             "pattern_avg_entropy": 0.5,
             "crystal_avg_entropy": 0.2,
         },
-        
         # Cognitive Lenses Domain
         "cognitive_lenses": {
             "active_lens": "neurotypical",  # Default lens
@@ -276,9 +321,8 @@ async def get_metrics() -> Any:
                 "adhd": 0,
                 "autism": 0,
                 "dyslexia": 0,
-            }
+            },
         },
-        
         # System Health Domain
         "system_health": {
             "status": health_status,
@@ -291,32 +335,32 @@ async def get_metrics() -> Any:
             "heap_gib": base_metrics.get("global_heap_gib", 0),
             "heap_stale_ratio": base_metrics.get("avg_heap_stale_ratio", 0),
             "cog_enabled": cog_status.get("enabled", False),
-            "embedding_active": base_metrics.get("cog_embedding", {}).get("enabled", False),
+            "embedding_active": base_metrics.get("cog_embedding", {}).get(
+                "enabled", False
+            ),
         },
-        
         # Recent Activity
         "recent_activity": [
             {
                 "type": "zone_transition",
                 "description": f"Memory zone transition: {zone_metrics.last_transition or 'None'}",
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             },
             {
                 "type": "processing",
                 "description": f"Total items processed across all zones: {zone_metrics.active_count + zone_metrics.pattern_count + zone_metrics.crystal_count}",
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             },
             {
                 "type": "system",
                 "description": f"System health: {health_status}",
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-            }
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            },
         ],
-        
         # Legacy compatibility - include original metrics
-        "legacy": base_metrics
+        "legacy": base_metrics,
     }
-    
+
     return enhanced_metrics
 
 
@@ -338,21 +382,25 @@ async def get_metrics_prom() -> Any:
     lines.append("# HELP qnf_p95_latency_ms Rolling p95 latency in ms")
     lines.append("# TYPE qnf_p95_latency_ms gauge")
     lines.append(f"qnf_p95_latency_ms {m.get('p95_latency_ms', 0.0)}")
-    lines.append("# HELP qnf_avg_heap_stale_ratio Average heap stale ratio across pools")
+    lines.append(
+        "# HELP qnf_avg_heap_stale_ratio Average heap stale ratio across pools"
+    )
     lines.append("# TYPE qnf_avg_heap_stale_ratio gauge")
     lines.append(f"qnf_avg_heap_stale_ratio {m.get('avg_heap_stale_ratio', 0.0)}")
     lines.append("# HELP qnf_max_heap_stale_ratio Max heap stale ratio across pools")
     lines.append("# TYPE qnf_max_heap_stale_ratio gauge")
     lines.append(f"qnf_max_heap_stale_ratio {m.get('max_heap_stale_ratio', 0.0)}")
     # Cog embedding metrics
-    cog = m.get('cog_embedding', {}) or {}
+    cog = m.get("cog_embedding", {}) or {}
+
     def cg(key: str, default: float = 0.0) -> float:
         try:
             return float(cog.get(key, default) or 0.0)
         except Exception:
             return 0.0
+
     try:
-        enabled = 1 if (cog.get('enabled') is True) else 0
+        enabled = 1 if (cog.get("enabled") is True) else 0
     except Exception:
         enabled = 0
     lines.append("# HELP qnf_cog_embedding_enabled Cog embedding metrics enabled flag")
@@ -364,17 +412,23 @@ async def get_metrics_prom() -> Any:
     lines.append("# HELP qnf_cog_avg_cosine Average cosine similarity over window")
     lines.append("# TYPE qnf_cog_avg_cosine gauge")
     lines.append(f"qnf_cog_avg_cosine {cg('avg_cosine', 0.0)}")
-    lines.append("# HELP qnf_cog_p95_cosine 95th percentile cosine similarity over window")
+    lines.append(
+        "# HELP qnf_cog_p95_cosine 95th percentile cosine similarity over window"
+    )
     lines.append("# TYPE qnf_cog_p95_cosine gauge")
     lines.append(f"qnf_cog_p95_cosine {cg('p95_cosine', 0.0)}")
     lines.append("# HELP qnf_cog_vec_dim Detected embedding vector dimension")
     lines.append("# TYPE qnf_cog_vec_dim gauge")
     lines.append(f"qnf_cog_vec_dim {cg('vec_dim', 0)}")
     # PCA details (if present)
-    lines.append("# HELP qnf_cog_pca_retained_variance Fraction of variance retained by PCA")
+    lines.append(
+        "# HELP qnf_cog_pca_retained_variance Fraction of variance retained by PCA"
+    )
     lines.append("# TYPE qnf_cog_pca_retained_variance gauge")
     lines.append(f"qnf_cog_pca_retained_variance {cg('pca_retained_variance', 0.0)}")
-    lines.append("# HELP qnf_cog_pca_recon_error_mean Per-sample reconstruction error (Frobenius)")
+    lines.append(
+        "# HELP qnf_cog_pca_recon_error_mean Per-sample reconstruction error (Frobenius)"
+    )
     lines.append("# TYPE qnf_cog_pca_recon_error_mean gauge")
     lines.append(f"qnf_cog_pca_recon_error_mean {cg('pca_recon_error_mean', 0.0)}")
     lines.append("# HELP qnf_cog_pca_proj_dim PCA projected dimension")
@@ -383,20 +437,24 @@ async def get_metrics_prom() -> Any:
     lines.append("# HELP qnf_cog_pca_base_dim PCA base/original dimension")
     lines.append("# TYPE qnf_cog_pca_base_dim gauge")
     lines.append(f"qnf_cog_pca_base_dim {cg('pca_base_dim', 0)}")
-    pools = m.get('pools', {}) or {}
+    pools = m.get("pools", {}) or {}
     for pid, pd in pools.items():
-        label = f"pool=\"{pid}\""
+        label = f'pool="{pid}"'
+
         def g(key: str, default: float = 0.0) -> float:
             try:
                 return float(pd.get(key, default) or 0.0)
             except Exception:
                 return 0.0
+
         lines.append(f"qnf_pool_processor_count{{{label}}} {g('processor_count', 0)}")
         lines.append(f"qnf_pool_total_executions{{{label}}} {g('total_executions', 0)}")
         lines.append(f"qnf_pool_heap_size{{{label}}} {g('heap_size', 0)}")
         lines.append(f"qnf_pool_heap_mib{{{label}}} {g('heap_mib', 0.0)}")
         lines.append(f"qnf_pool_heap_gib{{{label}}} {g('heap_gib', 0.0)}")
-        lines.append(f"qnf_pool_heap_stale_ratio{{{label}}} {g('sched_heap_stale_ratio', 0.0)}")
+        lines.append(
+            f"qnf_pool_heap_stale_ratio{{{label}}} {g('sched_heap_stale_ratio', 0.0)}"
+        )
         lines.append(f"qnf_pool_avg_latency_ms{{{label}}} {g('avg_latency_ms', 0.0)}")
         lines.append(f"qnf_pool_p95_latency_ms{{{label}}} {g('p95_latency_ms', 0.0)}")
     # Global heap totals if the service provided them
@@ -414,9 +472,10 @@ async def get_metrics_prom() -> Any:
         _svc = None
     try:
         import os
+
         cfg = await get_config()  # type: ignore
         for k, v in (cfg or {}).items():
-            lines.append(f"qnf_config_info{{key=\"{k}\",value=\"{v}\"}} 1")
+            lines.append(f'qnf_config_info{{key="{k}",value="{v}"}} 1')
         # Build info as a single metric for easy scraping
         bi = await run_in_threadpool(service.build_info)
         bapp = bi.get("app", "qnf")
@@ -424,23 +483,29 @@ async def get_metrics_prom() -> Any:
         bsha = bi.get("git_sha", "unknown")
         btime = bi.get("build_time", "unknown")
         lines.append(
-            f"qnf_build_info{{app=\"{bapp}\",version=\"{bver}\",git_sha=\"{bsha}\",build_time=\"{btime}\"}} 1"
+            f'qnf_build_info{{app="{bapp}",version="{bver}",git_sha="{bsha}",build_time="{btime}"}} 1'
         )
     except Exception:
         pass
     # Bus metrics
     try:
         bs = bus.status()
-        lines.append("# HELP qnf_bus_published_total Total events published on in-process bus")
+        lines.append(
+            "# HELP qnf_bus_published_total Total events published on in-process bus"
+        )
         lines.append("# TYPE qnf_bus_published_total counter")
         lines.append(f"qnf_bus_published_total {bs.get('published', 0)}")
-        lines.append("# HELP qnf_bus_dropped_total Events dropped due to overflow policy")
+        lines.append(
+            "# HELP qnf_bus_dropped_total Events dropped due to overflow policy"
+        )
         lines.append("# TYPE qnf_bus_dropped_total counter")
         lines.append(f"qnf_bus_dropped_total {bs.get('dropped', 0)}")
         lines.append("# HELP qnf_bus_errors_total Delivery errors on in-process bus")
         lines.append("# TYPE qnf_bus_errors_total counter")
         lines.append(f"qnf_bus_errors_total {bs.get('errors', 0)}")
-        lines.append("# HELP qnf_bus_subscribers Current subscriber count on in-process bus")
+        lines.append(
+            "# HELP qnf_bus_subscribers Current subscriber count on in-process bus"
+        )
         lines.append("# TYPE qnf_bus_subscribers gauge")
         lines.append(f"qnf_bus_subscribers {bs.get('subscribers', 0)}")
     except Exception:
@@ -448,30 +513,36 @@ async def get_metrics_prom() -> Any:
     # Cog intent/topic counts + threads
     try:
         stats = await run_in_threadpool(service.cog_stats)
-        intents = (stats or {}).get('intents', {}) or {}
-        topics = (stats or {}).get('topics', {}) or {}
+        intents = (stats or {}).get("intents", {}) or {}
+        topics = (stats or {}).get("topics", {}) or {}
         for k, v in intents.items():
-            lines.append(f"qnf_intent_count{{intent=\"{k}\"}} {float(v)}")
+            lines.append(f'qnf_intent_count{{intent="{k}"}} {float(v)}')
         for k, v in topics.items():
-            lines.append(f"qnf_topic_count{{topic=\"{k}\"}} {float(v)}")
+            lines.append(f'qnf_topic_count{{topic="{k}"}} {float(v)}')
         th = await run_in_threadpool(service.cog_threads, None)
-        tcount = len((th or {}).get('threads', []) or [])
+        tcount = len((th or {}).get("threads", []) or [])
         lines.append("# HELP qnf_threads_total Number of cognition threads")
         lines.append("# TYPE qnf_threads_total gauge")
         lines.append(f"qnf_threads_total {tcount}")
         # Resonance snapshot
         res = await run_in_threadpool(service.resonance_last)
         if isinstance(res, dict) and res:
-            score = float(res.get('score', 0.0) or 0.0)
+            score = float(res.get("score", 0.0) or 0.0)
             lines.append("# HELP qnf_resonance_score Last resonance score")
             lines.append("# TYPE qnf_resonance_score gauge")
             lines.append(f"qnf_resonance_score {score}")
-            for key in ("rules","similarity","stability","ethics_ok","thread_activity"):
+            for key in (
+                "rules",
+                "similarity",
+                "stability",
+                "ethics_ok",
+                "thread_activity",
+            ):
                 try:
                     val = float(res.get(key, 0.0) or 0.0)
                 except Exception:
                     val = 0.0
-                lines.append(f"qnf_resonance_component{{name=\"{key}\"}} {val}")
+                lines.append(f'qnf_resonance_component{{name="{key}"}} {val}')
     except Exception:
         pass
     text = "\n".join(lines) + "\n"
@@ -493,16 +564,25 @@ async def readyz() -> Response:
             body = {"ready": True, "total_pools": payload.get("total_pools", 0)}
         else:
             body = {"ready": True}
-        return Response(content=str(body).replace("'", '"'), media_type="application/json", status_code=status.HTTP_200_OK)
+        return Response(
+            content=str(body).replace("'", '"'),
+            media_type="application/json",
+            status_code=status.HTTP_200_OK,
+        )
     except Exception:
         body = {"ready": False}
-    return Response(content=str(body).replace("'", '"'), media_type="application/json", status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+    return Response(
+        content=str(body).replace("'", '"'),
+        media_type="application/json",
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+    )
 
 
 @router.get("/config")
 async def get_config() -> Any:
     # Useful runtime flags/env surfaced for ops
     import os
+
     def as_int(k: str, default: int) -> int:
         try:
             return int(os.getenv(k, str(default)))
@@ -756,6 +836,8 @@ async def ops_page() -> str:
   </html>
 """
     return html
+
+
 @router.post("/process", response_model=ProcessResponse)
 async def post_process(req: ProcessRequest) -> Any:
     return await run_in_threadpool(service.process, req.data, req.pool_id)
@@ -765,7 +847,9 @@ async def post_process(req: ProcessRequest) -> Any:
 async def create_pool(req: PoolCreateRequest) -> Any:
     try:
         # FIXED: run_in_threadpool (underscore)
-        pool_id = await run_in_threadpool(service.create_pool, req.pool_id, req.initial_size)
+        pool_id = await run_in_threadpool(
+            service.create_pool, req.pool_id, req.initial_size
+        )
         return {"pool_id": pool_id, "status": "created"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -786,9 +870,13 @@ async def rebuild(req: RebuildRequest) -> Any:
 @router.post("/stress", response_model=StressResult | JobSubmitResponse)
 async def stress(req: StressRequest) -> Any:
     if req.async_mode:
-        job_id = await run_in_threadpool(service.submit_stress_job, req.iterations, req.concurrent)
+        job_id = await run_in_threadpool(
+            service.submit_stress_job, req.iterations, req.concurrent
+        )
         return JobSubmitResponse(job_id=job_id, status="queued")
-    result = await run_in_threadpool(service.stress_test, req.iterations, req.concurrent)
+    result = await run_in_threadpool(
+        service.stress_test, req.iterations, req.concurrent
+    )
     return result
 
 
@@ -887,8 +975,13 @@ async def cognitive_metrics() -> Any:
     """Get current cognitive processing metrics."""
     # For now, return basic metrics; in future, integrate with orchestrator
     from .services.memory_zones import get_memory_manager
+
     memory_manager = get_memory_manager()
-    zone_metrics = memory_manager.get_zone_metrics() if hasattr(memory_manager, 'get_zone_metrics') else {}
+    zone_metrics = (
+        memory_manager.get_zone_metrics()
+        if hasattr(memory_manager, "get_zone_metrics")
+        else {}
+    )
     return {
         "zone_metrics": zone_metrics,
         "active_lens": "neurotypical",  # Default
@@ -918,45 +1011,57 @@ async def activate(preset: str) -> Any:
 async def sync_update(req: SyncUpdateRequest) -> Any:
     return await run_in_threadpool(service.sync_update, req.agent, req.state)
 
+
 @router.get("/sync/snapshot", response_model=SyncSnapshot)
 async def sync_snapshot() -> Any:
     return await run_in_threadpool(service.sync_snapshot)
+
 
 @router.get("/sync/trinode")
 async def sync_trinode() -> Any:
     return await run_in_threadpool(service.sync_trinode)
 
+
 @router.post("/glyphs/validate", response_model=GlyphValidateResponse)
 async def glyphs_validate(req: GlyphValidateRequest) -> Any:
     return await run_in_threadpool(service.sync_validate, req.sequence)
+
 
 @router.get("/glyphs/boot", response_model=list[BootStep])
 async def glyphs_boot() -> Any:
     return await run_in_threadpool(service.sync_boot)
 
+
 # --- Persistence / Upgrade ---------------------------------------------------
+
 
 @router.get("/state")
 async def state_dump() -> Any:
     return await run_in_threadpool(service.state_dump)
 
+
 @router.post("/state/save")
 async def state_save() -> Any:
     return await run_in_threadpool(service.state_save)
+
 
 @router.get("/upgrade/plan")
 async def upgrade_plan() -> Any:
     return await run_in_threadpool(service.upgrade_plan)
 
+
 @router.post("/upgrade/apply")
 async def upgrade_apply() -> Any:
     return await run_in_threadpool(service.upgrade_apply)
 
+
 # --- Triage Tuner ------------------------------------------------------------
+
 
 @router.get("/triage/tuner")
 async def triage_tuner_get() -> Any:
     return await run_in_threadpool(service.triage_tuner_get)
+
 
 @router.post("/triage/tuner")
 async def triage_tuner_set(payload: dict = Body(...)) -> Any:
@@ -967,17 +1072,22 @@ async def triage_tuner_set(payload: dict = Body(...)) -> Any:
         payload.get("target_p95_ms"),
     )
 
+
 # --- Sentinel Profile --------------------------------------------------------
+
 
 @router.get("/sentinel/profile")
 async def sentinel_profile_get() -> Any:
     return await run_in_threadpool(service.profile_get)
 
+
 @router.post("/sentinel/init")
 async def sentinel_profile_init() -> Any:
     return await run_in_threadpool(service.profile_initialize)
 
+
 # --- Dashboard Endpoints -----------------------------------------------------
+
 
 @router.get("/dashboard/metrics")
 async def dashboard_metrics() -> Any:
@@ -995,18 +1105,30 @@ async def dashboard_metrics() -> Any:
     eval_scores = {"relevance": 0.0, "coherence": 0.0, "groundedness": 0.0}
     try:
         import json
+
         eval_file = Path(__file__).parent.parent / "evaluation" / "eval_results.json"
         if eval_file.exists():
-            with open(eval_file, 'r') as f:
+            with open(eval_file, "r") as f:
                 results = json.load(f)
                 if results:
                     # Calculate averages from successful evaluations
-                    successful_results = [r for r in results if r.get("success") and "scores" in r]
+                    successful_results = [
+                        r for r in results if r.get("success") and "scores" in r
+                    ]
                     if successful_results:
                         eval_scores = {
-                            "relevance": sum(r["scores"]["relevance"] for r in successful_results) / len(successful_results),
-                            "coherence": sum(r["scores"]["coherence"] for r in successful_results) / len(successful_results),
-                            "groundedness": sum(r["scores"]["groundedness"] for r in successful_results) / len(successful_results)
+                            "relevance": sum(
+                                r["scores"]["relevance"] for r in successful_results
+                            )
+                            / len(successful_results),
+                            "coherence": sum(
+                                r["scores"]["coherence"] for r in successful_results
+                            )
+                            / len(successful_results),
+                            "groundedness": sum(
+                                r["scores"]["groundedness"] for r in successful_results
+                            )
+                            / len(successful_results),
                         }
     except Exception:
         pass  # Use defaults if evaluation file not available
@@ -1018,23 +1140,24 @@ async def dashboard_metrics() -> Any:
             "status": "active" if total_pools > 0 else "idle",
             "pools": total_pools,
             "processors": raw.get("total_processors", 0),
-            "executions": status_data.get("total_executions", 0)
+            "executions": status_data.get("total_executions", 0),
         },
         "performance": {
             "avg_latency_ms": avg_latency,
             "p95_latency_ms": raw.get("p95_latency_ms", 0),
             "heap_mib": raw.get("global_heap_mib", 0),
-            "heap_stale_ratio": raw.get("avg_heap_stale_ratio", 0)
+            "heap_stale_ratio": raw.get("avg_heap_stale_ratio", 0),
         },
         "cognition": {
             "enabled": cog.get("enabled", False),
             "memory_entries": cog.get("memory_entries", 0),
             "symbolic_rules": cog.get("rule_count", 0),
             "embedding_active": raw.get("cog_embedding", {}).get("enabled", False),
-            "evaluation_scores": eval_scores
+            "evaluation_scores": eval_scores,
         },
-        "platform": status_data.get("platform", "unknown")
+        "platform": status_data.get("platform", "unknown"),
     }
+
 
 @router.get("/dashboard/activity")
 async def dashboard_activity() -> Any:
@@ -1042,15 +1165,16 @@ async def dashboard_activity() -> Any:
     stats = await run_in_threadpool(service.cog_stats)
     threads = await run_in_threadpool(service.cog_threads, None)
     events = await run_in_threadpool(service.recent_events, 10)
-    
+
     # Load evaluation activity data
     intents = stats.get("intents", {})
     total_queries = 0
     try:
         import json
+
         queries_file = Path(__file__).parent.parent / "evaluation" / "test_queries.json"
         if queries_file.exists():
-            with open(queries_file, 'r') as f:
+            with open(queries_file, "r") as f:
                 queries = json.load(f)
                 for query in queries:
                     intent = query.get("expected_intent", "unknown")
@@ -1059,7 +1183,7 @@ async def dashboard_activity() -> Any:
     except Exception:
         intents = {"chat": 45, "status": 20, "command": 15}  # Fallback
         total_queries = 80
-    
+
     return {
         "intents": intents,
         "topics": stats.get("topics", {}),
@@ -1067,40 +1191,57 @@ async def dashboard_activity() -> Any:
         "recent_events": events,
         "total_queries": total_queries,
         "recent_activity": [
-            {"type": "evaluation", "description": "Full evaluation pipeline completed", "timestamp": "2025-12-19T02:15:12Z"},
-            {"type": "chat", "description": f"Cognitive orchestrator processed {total_queries} queries", "timestamp": "2025-12-19T02:15:12Z"},
-            {"type": "system", "description": "TestClient validation successful", "timestamp": "2025-12-19T02:15:35Z"}
-        ]
+            {
+                "type": "evaluation",
+                "description": "Full evaluation pipeline completed",
+                "timestamp": "2025-12-19T02:15:12Z",
+            },
+            {
+                "type": "chat",
+                "description": f"Cognitive orchestrator processed {total_queries} queries",
+                "timestamp": "2025-12-19T02:15:12Z",
+            },
+            {
+                "type": "system",
+                "description": "TestClient validation successful",
+                "timestamp": "2025-12-19T02:15:35Z",
+            },
+        ],
     }
+
 
 @router.get("/dashboard/sentinel")
 async def dashboard_sentinel() -> Any:
     """Sentinel profile data for dashboard."""
     profile = await run_in_threadpool(service.profile_get)
     rules = await run_in_threadpool(service.cog_get_rules)
-    
+
     return {
         "codename": profile.get("codename", "Sentinel I"),
         "performance_boost": profile.get("performance_boost", 1),
         "cognitive_modules": {
-            "neural_prime": profile.get("cognitive_core", {}).get("neuralprime_extensions", {}),
+            "neural_prime": profile.get("cognitive_core", {}).get(
+                "neuralprime_extensions", {}
+            ),
             "emotional_engine": profile.get("emotional_engine", {}),
             "creative_modules": profile.get("creative_modules", {}),
-            "memory_system": profile.get("memory_system", {})
+            "memory_system": profile.get("memory_system", {}),
         },
         "active_rules": len(rules.get("rules", {})),
         "cognitive_lenses": ["ADHD", "Autism", "Dyslexia", "Neurotypical"],
         "memory_zones": ["Episodic", "Semantic", "Working"],
-        "evaluation_status": "Complete"
+        "evaluation_status": "Complete",
     }
 
+
 # --- Phase 2 Dashboard Route (dep_A1_to_V1) ---
+
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_view(request: Request) -> Any:
     """
     Phase 2 Dashboard Route (dep_A1_to_V1)
-    
+
     Serves the interactive dashboard with real-time metrics visualization.
     Integrates with:
     - Three-zone memory system from quantum_nexus_forge_v5_2_enhanced.py

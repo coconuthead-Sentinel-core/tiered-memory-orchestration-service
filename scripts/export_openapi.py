@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -14,9 +14,17 @@ from backend.main import app
 
 
 def main() -> None:
-    output_path = PROJECT_ROOT / "docs" / "engineering-build" / "openapi" / "openapi.generated.json"
+    output_path = (
+        PROJECT_ROOT
+        / "docs"
+        / "engineering-build"
+        / "openapi"
+        / "openapi.generated.json"
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(app.openapi(), indent=2, sort_keys=True), encoding="utf-8")
+    output_path.write_text(
+        json.dumps(app.openapi(), indent=2, sort_keys=True), encoding="utf-8"
+    )
     print(f"Wrote OpenAPI schema to {output_path}")
 
 

@@ -1,6 +1,6 @@
 import asyncio
-import threading
 import os
+import threading
 from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple
 
@@ -137,6 +137,7 @@ class EventBus:
         m["subscribers"] = subs
         m["name"] = self.name
         return m
+
 
 def _create_bus_from_env() -> EventBus:
     backend = os.getenv("QNF_BUS_BACKEND", "local").lower()

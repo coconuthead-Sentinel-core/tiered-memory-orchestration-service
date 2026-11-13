@@ -7,16 +7,17 @@ Validates:
 4. Edge cases and error handling
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from backend.domain.models import CognitiveLens
 from backend.services.adhd_lens import (
     ADHDLens,
     create_adhd_lens,
     transform_with_adhd_lens,
 )
 from backend.services.cognitive_orchestrator import CognitiveOrchestrator
-from backend.domain.models import CognitiveLens
 
 
 def test_adhd_lens_initialization():
@@ -119,7 +120,9 @@ async def test_adhd_lens_integration():
     mock_adapter.chat = AsyncMock(
         return_value={
             "id": "test-123",
-            "choices": [{"message": {"content": "This is a test response from the AI."}}],
+            "choices": [
+                {"message": {"content": "This is a test response from the AI."}}
+            ],
         }
     )
 
