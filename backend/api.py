@@ -1,4 +1,5 @@
 from typing import Any, List, Dict, Union
+import json
 import logging
 import uuid
 from pathlib import Path
@@ -20,7 +21,7 @@ from .service import service
 from .core.security import api_key_guard
 from .core.config import settings
 from .runtime_ai import ai_runtime
-# from .eventbus import bus
+from .eventbus import bus
 
 # NEW: Import Domain, Infrastructure, and Services
 from .domain.models import Note
