@@ -1,5 +1,6 @@
 # tests/test_quantum_nexus.py
 """Tests for the Quantum Nexus lattice coordinate system."""
+
 import pytest
 
 from backend.services.quantum_nexus import GreatGreg, QuantumNexus

@@ -357,7 +357,9 @@ class CognitiveOrchestrator(ChatService):
             # 5.1 L2 Validation Loop (Cerebellum)
             validation_result = validator.validate_output(ai_text)
             if not validation_result["consensus"]:
-                logger.warning(f"⚠️ L2 Validation Failed: {validation_result['status']}")
+                logger.warning(
+                    f"⚠️ L2 Validation Failed: {validation_result['status']}"
+                )
 
             # 5.2 L7 Singularity Metric (Singularity Kernel)
             singularity_metric = calculus.calculate_singularity_metric(
