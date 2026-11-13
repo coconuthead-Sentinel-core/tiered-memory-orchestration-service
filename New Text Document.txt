@@ -1,5 +1,0 @@
-REM filepath: c:\Users\sbrya\OneDrive\Desktop\Sentinel of Sentinel forage\Sentinel-of-sentinel-s-Forge\run_server.bat
-@echo off
-echo Starting FastAPI server on http://127.0.0.1:8000
-echo Press CTRL+C to stop the server.
-uvicorn main:app --reload --port 8000
