@@ -2,7 +2,12 @@ import os
 import time
 from typing import Callable, Dict, Optional
 
-from fastapi import Depends, Header, HTTPException, WebSocket  # type: ignore[reportMissingImports]
+from fastapi import (  # type: ignore[reportMissingImports]
+    Depends,
+    Header,
+    HTTPException,
+    WebSocket,
+)
 from starlette.requests import Request
 
 
@@ -15,7 +20,12 @@ def require_api_key(x_api_key: Optional[str] = Header(default=None)) -> None:
       - Otherwise (dev), allow.
     """
     configured = os.getenv("QNF_API_KEY")
-    require = str(os.getenv("QNF_REQUIRE_API_KEY", "0")).lower() in ("1", "true", "yes", "on")
+    require = str(os.getenv("QNF_REQUIRE_API_KEY", "0")).lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
     if configured:
         if not x_api_key or x_api_key != configured:
             raise HTTPException(status_code=401, detail="invalid api key")
@@ -31,7 +41,12 @@ def websocket_require_api_key(ws: WebSocket) -> None:
     Query:  api_key
     """
     configured = os.getenv("QNF_API_KEY")
-    require = str(os.getenv("QNF_REQUIRE_API_KEY", "0")).lower() in ("1", "true", "yes", "on")
+    require = str(os.getenv("QNF_REQUIRE_API_KEY", "0")).lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
     if not configured and not require:
         return
     # Try header then query param
@@ -55,7 +70,12 @@ class RateLimiter:
     """
 
     def __init__(self) -> None:
-        self.enabled = str(os.getenv("QNF_RATE_LIMIT_ENABLED", "0")).lower() in ("1", "true", "yes", "on")
+        self.enabled = str(os.getenv("QNF_RATE_LIMIT_ENABLED", "0")).lower() in (
+            "1",
+            "true",
+            "yes",
+            "on",
+        )
         self.rpm = int(os.getenv("QNF_RATE_LIMIT_RPM", "600"))
         self.burst = int(os.getenv("QNF_RATE_LIMIT_BURST", "120"))
         self._buckets: Dict[str, Dict[str, float]] = {}
@@ -75,7 +95,9 @@ class RateLimiter:
             b = {"tokens": float(self.burst), "ts": now}
         # Refill
         elapsed = max(0.0, now - float(b.get("ts", now)))
-        tokens = min(float(b.get("tokens", 0.0)) + elapsed * rate_per_sec, float(self.burst))
+        tokens = min(
+            float(b.get("tokens", 0.0)) + elapsed * rate_per_sec, float(self.burst)
+        )
         if tokens < 1.0:
             raise HTTPException(status_code=429, detail="rate limit exceeded")
         tokens -= 1.0

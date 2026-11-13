@@ -1,12 +1,13 @@
-
 import json
+
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.main import app
 from backend.eventbus import bus
+from backend.main import app
 
 client = TestClient(app)
+
 
 @pytest.mark.asyncio
 async def test_ws_cognitive_endpoint():
@@ -23,7 +24,7 @@ async def test_ws_cognitive_endpoint():
         # 2. Publish a 'cognitive' event and verify it's received
         cognitive_event = {"type": "test.cognitive.event", "data": "cognitive_payload"}
         bus.publish(cognitive_event, topic="cognitive")
-        
+
         received_data = websocket.receive_json()
         assert received_data == cognitive_event
 
@@ -54,14 +55,20 @@ async def test_ws_metrics_endpoint():
         assert isinstance(initial_data["data"], dict)
 
         # 2. Publish a relevant 'zone.classified' event and verify it's received
-        classified_event = {"type": "zone.classified", "data": {"zone": "active", "entropy": 0.8}}
+        classified_event = {
+            "type": "zone.classified",
+            "data": {"zone": "active", "entropy": 0.8},
+        }
         bus.publish(classified_event, topic="cognitive")
-        
+
         received_data = websocket.receive_json()
         assert received_data == classified_event
 
         # 3. Publish a relevant 'zone.transition' event and verify it's received
-        transition_event = {"type": "zone.transition", "data": {"note_id": "123", "from": "active", "to": "pattern"}}
+        transition_event = {
+            "type": "zone.transition",
+            "data": {"note_id": "123", "from": "active", "to": "pattern"},
+        }
         bus.publish(transition_event, topic="cognitive")
 
         received_data = websocket.receive_json()
@@ -70,10 +77,14 @@ async def test_ws_metrics_endpoint():
         # 4. Publish an irrelevant event, then a relevant one, and ensure the filter skips the irrelevant payload
         irrelevant_event = {"type": "some.other.event", "data": "should_be_ignored"}
         bus.publish(irrelevant_event, topic="cognitive")
-        followup_event = {"type": "zone.classified", "data": {"zone": "pattern", "entropy": 0.5}}
+        followup_event = {
+            "type": "zone.classified",
+            "data": {"zone": "pattern", "entropy": 0.5},
+        }
         bus.publish(followup_event, topic="cognitive")
         received_data = websocket.receive_json()
         assert received_data == followup_event
+
 
 # To run these tests, use:
 # pytest tests/test_websockets.py

@@ -19,7 +19,6 @@ elasticsearch
 # L5: Corpus Callosum
 pybind11
 grpcio
-grpcio-tools
 dapr
 # L7: Singularity
 anthropic

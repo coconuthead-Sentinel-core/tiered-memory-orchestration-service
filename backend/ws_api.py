@@ -3,7 +3,11 @@ import json
 import logging
 from typing import Any
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect  # type: ignore[reportMissingImports]
+from fastapi import (  # type: ignore[reportMissingImports]
+    APIRouter,
+    WebSocket,
+    WebSocketDisconnect,
+)
 
 from .eventbus import bus
 from .security import websocket_require_api_key
@@ -44,15 +48,22 @@ async def ws_cognitive(websocket: WebSocket) -> Any:
     loop = asyncio.get_running_loop()
 
     # Subscribe to all relevant cognitive event topics
-    cognitive_queue = bus.subscribe(loop, maxsize=100, policy="latest", topic="cognitive")
+    cognitive_queue = bus.subscribe(
+        loop, maxsize=100, policy="latest", topic="cognitive"
+    )
     symbolic_queue = bus.subscribe(loop, maxsize=100, policy="latest", topic="symbolic")
     glyph_queue = bus.subscribe(loop, maxsize=100, policy="latest", topic="glyph")
 
     try:
         # Send initial cognitive state snapshot
         from .services.memory_zones import get_memory_manager
+
         memory_manager = get_memory_manager()
-        zone_metrics = memory_manager.get_zone_metrics() if hasattr(memory_manager, 'get_zone_metrics') else {}
+        zone_metrics = (
+            memory_manager.get_zone_metrics()
+            if hasattr(memory_manager, "get_zone_metrics")
+            else {}
+        )
 
         initial_state = {
             "type": "cognitive.state",
@@ -60,7 +71,7 @@ async def ws_cognitive(websocket: WebSocket) -> Any:
                 "zone_metrics": zone_metrics,
                 "active_lens": "neurotypical",  # Placeholder for dynamic lens state
                 "timestamp": __import__("time").time(),
-            }
+            },
         }
         await websocket.send_json(initial_state)
 
@@ -68,7 +79,7 @@ async def ws_cognitive(websocket: WebSocket) -> Any:
         cognitive_task = asyncio.create_task(cognitive_queue.get())
         symbolic_task = asyncio.create_task(symbolic_queue.get())
         glyph_task = asyncio.create_task(glyph_queue.get())
-        
+
         pending = {cognitive_task, symbolic_task, glyph_task}
 
         while True:
@@ -83,7 +94,7 @@ async def ws_cognitive(websocket: WebSocket) -> Any:
                     await websocket.send_json(event)
                 except Exception as e:
                     logger.warning(f"Error processing WebSocket event: {e}")
-                
+
                 # Reschedule the completed task to listen for the next event
                 if task is cognitive_task:
                     cognitive_task = asyncio.create_task(cognitive_queue.get())
@@ -100,7 +111,9 @@ async def ws_cognitive(websocket: WebSocket) -> Any:
     except WebSocketDisconnect:
         logger.info("Client disconnected from /ws/cognitive.")
     except Exception as e:
-        logger.error(f"An unexpected error occurred in /ws/cognitive: {e}", exc_info=True)
+        logger.error(
+            f"An unexpected error occurred in /ws/cognitive: {e}", exc_info=True
+        )
     finally:
         # Unsubscribe from all event bus topics
         bus.unsubscribe(cognitive_queue)
@@ -124,19 +137,26 @@ async def websocket_metrics(websocket: WebSocket):
     try:
         # Send an initial snapshot of memory zone metrics
         from .services.memory_zones import get_memory_manager
+
         memory_manager = get_memory_manager()
-        initial_metrics = memory_manager.get_zone_metrics() if hasattr(memory_manager, 'get_zone_metrics') else {}
-        
-        await websocket.send_json({
-            "type": "metrics.initial_state",
-            "data": initial_metrics,
-            "timestamp": __import__("time").time(),
-        })
+        initial_metrics = (
+            memory_manager.get_zone_metrics()
+            if hasattr(memory_manager, "get_zone_metrics")
+            else {}
+        )
+
+        await websocket.send_json(
+            {
+                "type": "metrics.initial_state",
+                "data": initial_metrics,
+                "timestamp": __import__("time").time(),
+            }
+        )
 
         # Listen for and forward relevant real-time events
         while True:
             event = await queue.get()
-            
+
             # Filter for events that are relevant to metrics
             if event.get("type") in ["zone.classified", "zone.transition"]:
                 await websocket.send_json(event)

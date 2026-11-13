@@ -11,16 +11,19 @@ from backend.core.config import settings
 AIO_TIMEOUT = httpx.Timeout(30.0, connect=10.0)
 RETRIES = 2  # simple linear retry on 5xx/429
 
+
 @dataclass
 class CachedToken:
     token: str
     expires_at: float  # epoch seconds
+
 
 class AzureCognitiveTokenProvider:
     """
     Uses AAD to obtain tokens for Azure OpenAI (Cognitive Services scope).
     Caches token until a safety window before expiry to avoid mid-request failures.
     """
+
     _scope = "https://cognitiveservices.azure.com/.default"
     _skew_seconds = 60
 
@@ -45,10 +48,12 @@ class AzureCognitiveTokenProvider:
     async def aclose(self) -> None:
         await self._cred.close()
 
+
 class AzureOpenAIAdapter:
     """
     Minimal Azure OpenAI adapter with Azure AD or API key authentication.
     """
+
     def __init__(
         self,
         http: httpx.AsyncClient,
@@ -67,7 +72,9 @@ class AzureOpenAIAdapter:
                 "Content-Type": "application/json",
             }
         if self._token_provider is None:
-            raise RuntimeError("Azure OpenAI adapter is missing both API key and token provider.")
+            raise RuntimeError(
+                "Azure OpenAI adapter is missing both API key and token provider."
+            )
         token = await self._token_provider.get_token()
         return {
             "Authorization": f"Bearer {token}",
@@ -84,7 +91,9 @@ class AzureOpenAIAdapter:
         last_exc: Optional[Exception] = None
         for attempt in range(RETRIES + 1):
             try:
-                resp = await self._http.request(method, url, headers=await self._headers(), json=json, params=params)
+                resp = await self._http.request(
+                    method, url, headers=await self._headers(), json=json, params=params
+                )
                 if resp.status_code in (429, 500, 502, 503, 504):
                     # Retry on transient server/backpressure conditions
                     await asyncio.sleep(0.5 * (attempt + 1))
@@ -114,7 +123,9 @@ class AzureOpenAIAdapter:
         if temperature is not None:
             body["temperature"] = temperature
         if max_tokens is not None:
-            body["max_completion_tokens"] = max_tokens  # required for o4-mini, GPT-5 models
+            body["max_completion_tokens"] = (
+                max_tokens  # required for o4-mini, GPT-5 models
+            )
         if tools:
             body["tools"] = tools
         if tool_choice:
@@ -140,6 +151,7 @@ class AzureOpenAIAdapter:
         await _raise_if_azure_error(resp)
         return resp.json()
 
+
 async def _raise_if_azure_error(resp: httpx.Response) -> None:
     if 200 <= resp.status_code < 300:
         return
@@ -149,4 +161,8 @@ async def _raise_if_azure_error(resp: httpx.Response) -> None:
         msg = data.get("error", {}).get("message") or data
     except Exception:
         msg = resp.text
-    raise httpx.HTTPStatusError(f"Azure OpenAI error {resp.status_code}: {msg}", request=resp.request, response=resp)
+    raise httpx.HTTPStatusError(
+        f"Azure OpenAI error {resp.status_code}: {msg}",
+        request=resp.request,
+        response=resp,
+    )

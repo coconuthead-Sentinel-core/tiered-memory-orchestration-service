@@ -22,14 +22,25 @@ class LLMClient:
 
     def __init__(self) -> None:
         if OpenAI is None:
-            raise LLMError("OpenAI SDK not installed. Run: pip install -r requirements.txt")
+            raise LLMError(
+                "OpenAI SDK not installed. Run: pip install -r requirements.txt"
+            )
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise LLMError("OPENAI_API_KEY not set in environment.")
         base_url = os.getenv("OPENAI_BASE_URL")
-        self.client = OpenAI(api_key=api_key, base_url=base_url) if base_url else OpenAI(api_key=api_key)
+        self.client = (
+            OpenAI(api_key=api_key, base_url=base_url)
+            if base_url
+            else OpenAI(api_key=api_key)
+        )
 
-    def chat(self, messages: List[Dict[str, Any]], model: Optional[str] = None, temperature: float = 0.4) -> Dict[str, Any]:
+    def chat(
+        self,
+        messages: List[Dict[str, Any]],
+        model: Optional[str] = None,
+        temperature: float = 0.4,
+    ) -> Dict[str, Any]:
         model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         try:
             # Use Chat Completions API for widest compatibility
@@ -49,7 +60,9 @@ class LLMClient:
             "usage": getattr(resp, "usage", None) and resp.usage.dict(),
         }
 
-    def embeddings(self, input: List[str], model: Optional[str] = None) -> Dict[str, Any]:
+    def embeddings(
+        self, input: List[str], model: Optional[str] = None
+    ) -> Dict[str, Any]:
         model = model or os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
         try:
             resp = self.client.embeddings.create(model=model, input=input)
@@ -67,4 +80,3 @@ def get_llm() -> LLMClient:
     if _singleton is None:
         _singleton = LLMClient()
     return _singleton
-

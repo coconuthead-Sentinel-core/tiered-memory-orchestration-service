@@ -1,18 +1,18 @@
-import threading
 import os
+import threading
 import time
 import uuid
-from typing import Any, Dict, Optional
 from collections import deque
+from typing import Any, Dict, Optional
 
-from quantum_nexus_forge_v5_2_enhanced import QuantumNexusForge
+from quantum_nexus_forge_v5_2_enhanced import QuantumAtom, QuantumNexusForge
 from sentinel_cognition import SentinelCognitionGraph
-from quantum_nexus_forge_v5_2_enhanced import QuantumAtom
-from sentinel_profile import initialize_sentinel, default_profile
-from sentinel_sync import sync_coordinator, _glyphic_signature
+from sentinel_profile import default_profile, initialize_sentinel
+from sentinel_sync import _glyphic_signature, sync_coordinator
+
 from .eventbus import bus
+from .llm import LLMError, get_llm
 from .storage import JSONStore
-from .llm import get_llm, LLMError
 
 
 class QNFService:
@@ -96,8 +96,8 @@ class QNFService:
             try:
                 if isinstance(entries, (int, float)) and entry_bytes > 0:
                     total_bytes = float(entries) * float(entry_bytes)
-                    heap_mib = total_bytes / (1024.0 ** 2)
-                    heap_gib = total_bytes / (1024.0 ** 3)
+                    heap_mib = total_bytes / (1024.0**2)
+                    heap_gib = total_bytes / (1024.0**3)
                     global_total_bytes += total_bytes
             except Exception:
                 pass
@@ -112,8 +112,12 @@ class QNFService:
                 "p95_latency_ms": pdata.get("p95_latency_ms"),
                 "build": self._per_pool_build(pid),
             }
-        global_heap_mib = global_total_bytes / (1024.0 ** 2) if global_total_bytes > 0 else 0.0
-        global_heap_gib = global_total_bytes / (1024.0 ** 3) if global_total_bytes > 0 else 0.0
+        global_heap_mib = (
+            global_total_bytes / (1024.0**2) if global_total_bytes > 0 else 0.0
+        )
+        global_heap_gib = (
+            global_total_bytes / (1024.0**3) if global_total_bytes > 0 else 0.0
+        )
         # Cognition embedding metrics (lightweight; optional)
         try:
             cog_embed = self._cog.embed_metrics()
@@ -129,7 +133,10 @@ class QNFService:
                 # Heuristic gradient step: if p95>target, decrease threshold to scale earlier
                 delta = p95 - target
                 new_thr = float(old_thr) - lr * delta
-                new_thr = max(float(self._tuner.get("min_ms", 10.0)), min(float(self._tuner.get("max_ms", 5000.0)), new_thr))
+                new_thr = max(
+                    float(self._tuner.get("min_ms", 10.0)),
+                    min(float(self._tuner.get("max_ms", 5000.0)), new_thr),
+                )
                 try:
                     self._qnf.set_p95_scale_threshold_ms(new_thr)  # type: ignore[attr-defined]
                 except Exception:
@@ -228,7 +235,10 @@ class QNFService:
         return {"player": player, "friend": friend}
 
     def list_friendships(self, player: str) -> Dict[str, Any]:
-        return {"player": player, "friends": sorted(self._friendships.get(player, set()))}
+        return {
+            "player": player,
+            "friends": sorted(self._friendships.get(player, set())),
+        }
 
     def create_guild(self, guild_id: str, name: str) -> Dict[str, Any]:
         if guild_id in self._guilds:
@@ -237,7 +247,9 @@ class QNFService:
         return self._guilds[guild_id]
 
     def add_guild_member(self, guild_id: str, player: str) -> Dict[str, Any]:
-        g = self._guilds.setdefault(guild_id, {"id": guild_id, "name": guild_id, "members": set()})
+        g = self._guilds.setdefault(
+            guild_id, {"id": guild_id, "name": guild_id, "members": set()}
+        )
         g["members"].add(player)
         return {"guild": guild_id, "members": sorted(g["members"])}
 
@@ -304,10 +316,16 @@ class QNFService:
                 topics = [self._topic_alias.get(t, t) for t in topics]
             except Exception:
                 pass
-            bus.publish({
-                "type": "cog.intent",
-                "data": {"intent": intent, "confidence": confidence, "topics": topics},
-            })
+            bus.publish(
+                {
+                    "type": "cog.intent",
+                    "data": {
+                        "intent": intent,
+                        "confidence": confidence,
+                        "topics": topics,
+                    },
+                }
+            )
             # Update stats
             self._intent_counts[intent] = self._intent_counts.get(intent, 0) + 1
             for t in topics:
@@ -318,9 +336,23 @@ class QNFService:
             if not thread_id:
                 thread_id = f"thr_{uuid.uuid4().hex[:8]}"
                 self._topic_to_thread[top_topic] = thread_id
-                self._threads[thread_id] = {"id": thread_id, "topic": top_topic, "items": [], "created": time.time(), "updated": time.time()}
-            sig = _glyphic_signature({"text": str(data), "intent": intent, "topics": topics})
-            entry = {"ts": time.time(), "text": str(data), "intent": intent, "confidence": confidence, "sigil": list(sig)}
+                self._threads[thread_id] = {
+                    "id": thread_id,
+                    "topic": top_topic,
+                    "items": [],
+                    "created": time.time(),
+                    "updated": time.time(),
+                }
+            sig = _glyphic_signature(
+                {"text": str(data), "intent": intent, "topics": topics}
+            )
+            entry = {
+                "ts": time.time(),
+                "text": str(data),
+                "intent": intent,
+                "confidence": confidence,
+                "sigil": list(sig),
+            }
             thr = self._threads.get(thread_id)
             if thr is not None:
                 items = thr.get("items", [])
@@ -330,7 +362,9 @@ class QNFService:
                 thr["items"] = items
                 thr["updated"] = time.time()
             # Routing hint (no side effects; informational only)
-            route = self._route_hint(intent=intent, topics=topics, confidence=confidence)
+            route = self._route_hint(
+                intent=intent, topics=topics, confidence=confidence
+            )
             result.metadata["route"] = route
             # Opportunistic persistence every 10 updates
             self._persist_counter = (self._persist_counter + 1) % 10
@@ -340,14 +374,20 @@ class QNFService:
             try:
                 rule_comp = 0.0
                 refs = meta.get("reflective_refs", []) or []
-                sim_comp = float(refs[0].get("score", 0.0)) if refs and isinstance(refs[0], dict) else 0.0
+                sim_comp = (
+                    float(refs[0].get("score", 0.0))
+                    if refs and isinstance(refs[0], dict)
+                    else 0.0
+                )
                 sp = meta.get("shannon_prime", {}) or {}
                 stability = float(sp.get("stability", 0.0) or 0.0)
                 emo = meta.get("emotion", {}) or {}
                 valence = abs(float(emo.get("valence", 0.0) or 0.0))
                 eth = meta.get("ethics", {}) or {}
                 ethics_ok = 0 if any(bool(v) for v in eth.values()) else 1
-                thread_activity = min(1.0, len(thr.get("items", [])) / 50.0) if thr else 0.0
+                thread_activity = (
+                    min(1.0, len(thr.get("items", [])) / 50.0) if thr else 0.0
+                )
                 components = {
                     "rules": rule_comp,
                     "similarity": sim_comp,
@@ -371,7 +411,9 @@ class QNFService:
         }
 
     # --- Routing / Threads API ---------------------------------------------
-    def _route_hint(self, *, intent: str, topics: list[str], confidence: float) -> Dict[str, Any]:
+    def _route_hint(
+        self, *, intent: str, topics: list[str], confidence: float
+    ) -> Dict[str, Any]:
         intent = (intent or "").lower()
         if intent in ("help",):
             return {"action": "help", "target": "local"}
@@ -388,18 +430,23 @@ class QNFService:
         for tid, th in self._threads.items():
             if topic and th.get("topic") != topic:
                 continue
-            out.append({
-                "id": tid,
-                "topic": th.get("topic"),
-                "count": len(th.get("items", [])),
-                "created": th.get("created"),
-                "updated": th.get("updated"),
-            })
+            out.append(
+                {
+                    "id": tid,
+                    "topic": th.get("topic"),
+                    "count": len(th.get("items", [])),
+                    "created": th.get("created"),
+                    "updated": th.get("updated"),
+                }
+            )
         out.sort(key=lambda x: x.get("updated", 0.0), reverse=True)
         return {"threads": out}
 
     def cog_stats(self) -> Dict[str, Any]:
-        return {"intents": dict(self._intent_counts), "topics": dict(self._topic_counts)}
+        return {
+            "intents": dict(self._intent_counts),
+            "topics": dict(self._topic_counts),
+        }
 
     def cog_thread(self, thread_id: str, limit: int = 50) -> Dict[str, Any]:
         thr = self._threads.get(thread_id)
@@ -481,15 +528,25 @@ class QNFService:
         returns normalized tokens, any alias topics that match, and a route hint.
         """
         if not isinstance(sequence, str):
-            return {"tokens": [], "route": {"action": "process", "target": "local"}, "topics": []}
+            return {
+                "tokens": [],
+                "route": {"action": "process", "target": "local"},
+                "topics": [],
+            }
         raw = sequence.replace("→", "->").replace("—", "->")
         parts = [p.strip() for p in raw.split("->") if p.strip()]
         norm_map = {
-            "APEX": "APEX", "🜂": "APEX", "FIRE": "APEX",
-            "CORE": "CORE", "♾": "CORE",
-            "EMIT": "EMIT", "🚀": "EMIT",
-            "ROOT": "ROOT", "🌳": "ROOT",
-            "CUBE": "CUBE", "🧊": "CUBE",
+            "APEX": "APEX",
+            "🜂": "APEX",
+            "FIRE": "APEX",
+            "CORE": "CORE",
+            "♾": "CORE",
+            "EMIT": "EMIT",
+            "🚀": "EMIT",
+            "ROOT": "ROOT",
+            "🌳": "ROOT",
+            "CUBE": "CUBE",
+            "🧊": "CUBE",
         }
         tokens: list[str] = [norm_map.get(p.upper(), p.upper()) for p in parts]
         topics: list[str] = []
@@ -505,7 +562,11 @@ class QNFService:
             action = "help" if "APEX" in tokens else "status"
         elif "CUBE" in tokens:
             action = "stress_test"
-        return {"tokens": tokens, "topics": topics, "route": {"action": action, "target": target}}
+        return {
+            "tokens": tokens,
+            "topics": topics,
+            "route": {"action": action, "target": target},
+        }
 
     def aliases_get(self) -> Dict[str, Any]:
         return {"aliases": dict(self._topic_alias)}
@@ -536,10 +597,12 @@ class QNFService:
             "reflective memory topic indexing",
         ]
         if preset == "enhanced":
-            seeds.extend([
-                "stress benchmark throughput",
-                "ethics guard sensitive",
-            ])
+            seeds.extend(
+                [
+                    "stress benchmark throughput",
+                    "ethics guard sensitive",
+                ]
+            )
         for s in seeds:
             try:
                 self.cog_process(s)
@@ -665,7 +728,10 @@ class QNFService:
             if isinstance(seeds, list):
                 self._seeds = {str(x).lower() for x in seeds}
             if isinstance(matrix, dict):
-                self._topic_matrix = {str(k): {str(kk): int(vv) for kk, vv in (v or {}).items()} for k, v in matrix.items()}
+                self._topic_matrix = {
+                    str(k): {str(kk): int(vv) for kk, vv in (v or {}).items()}
+                    for k, v in matrix.items()
+                }
             if isinstance(aliases, dict):
                 self._topic_alias = {str(k).lower(): str(v) for k, v in aliases.items()}
         except Exception:
@@ -690,7 +756,10 @@ class QNFService:
         try:
             base = self._store.load() or {}
             base["threads"] = self._threads
-            base["stats"] = {"intents": self._intent_counts, "topics": self._topic_counts}
+            base["stats"] = {
+                "intents": self._intent_counts,
+                "topics": self._topic_counts,
+            }
             base["seeds"] = sorted(self._seeds)
             base["matrix"] = self._topic_matrix
             self._store.save(base)
@@ -713,11 +782,13 @@ class QNFService:
         for pair in self._cog.metatron_suggestions(limit=50):
             current.setdefault(pair["pattern"], pair["tag"])
         self._cog.set_rules(current)
-        self._store.save({
-            "rules": current,
-            "memory": self._cog.memory_snapshot().get("top_preview", []),
-            "profile": self._profile,
-        })
+        self._store.save(
+            {
+                "rules": current,
+                "memory": self._cog.memory_snapshot().get("top_preview", []),
+                "profile": self._profile,
+            }
+        )
         bus.publish({"type": "upgrade.apply", "data": {"rules_count": len(current)}})
         return {"status": "ok", "rules_count": len(current)}
 
@@ -738,15 +809,24 @@ class QNFService:
         out: list[Dict[str, Any]] = []
         for nid, note in self._notes.items():
             vec = note.get("centroid")
-            out.append({
-                "id": nid,
-                "tag": note.get("tag"),
-                "count": note.get("count", 0),
-                "vec_dim": len(vec) if isinstance(vec, list) else 0,
-            })
+            out.append(
+                {
+                    "id": nid,
+                    "tag": note.get("tag"),
+                    "count": note.get("count", 0),
+                    "vec_dim": len(vec) if isinstance(vec, list) else 0,
+                }
+            )
         return sorted(out, key=lambda x: x.get("id", ""))
 
-    def notes_upsert(self, note_id: str, text: Optional[str] = None, vec: Optional[list[float]] = None, weight: float = 1.0, tag: Optional[str] = None) -> Dict[str, Any]:
+    def notes_upsert(
+        self,
+        note_id: str,
+        text: Optional[str] = None,
+        vec: Optional[list[float]] = None,
+        weight: float = 1.0,
+        tag: Optional[str] = None,
+    ) -> Dict[str, Any]:
         if not note_id:
             raise ValueError("note_id is required")
         if vec is None and text is None:
@@ -768,20 +848,30 @@ class QNFService:
         else:
             if len(c) != len(vec or []):
                 raise ValueError("vector dimension mismatch")
-            new_c = [ (n*cv + w*vv) / (n + w) for cv, vv in zip(c, vec or []) ]
+            new_c = [(n * cv + w * vv) / (n + w) for cv, vv in zip(c, vec or [])]
             new_n = int(n + w)
         if tag is not None:
             note["tag"] = tag
         note["centroid"] = new_c
         note["count"] = new_n
         self._notes[note_id] = note
-        return {"id": note_id, "tag": note.get("tag"), "count": new_n, "vec_dim": len(new_c)}
+        return {
+            "id": note_id,
+            "tag": note.get("tag"),
+            "count": new_n,
+            "vec_dim": len(new_c),
+        }
 
     # --- Triage tuner controls ---------------------------------------------
     def triage_tuner_get(self) -> Dict[str, Any]:
         return dict(self._tuner)
 
-    def triage_tuner_set(self, enabled: Optional[bool] = None, lr: Optional[float] = None, target_p95_ms: Optional[float] = None) -> Dict[str, Any]:
+    def triage_tuner_set(
+        self,
+        enabled: Optional[bool] = None,
+        lr: Optional[float] = None,
+        target_p95_ms: Optional[float] = None,
+    ) -> Dict[str, Any]:
         if enabled is not None:
             self._tuner["enabled"] = bool(enabled)
         if lr is not None:
@@ -791,7 +881,9 @@ class QNFService:
         return dict(self._tuner)
 
     # --- LLM / Chat ---------------------------------------------------------
-    def ai_chat(self, messages: list[dict], model: str | None, temperature: float) -> Dict[str, Any]:
+    def ai_chat(
+        self, messages: list[dict], model: str | None, temperature: float
+    ) -> Dict[str, Any]:
         try:
             llm = get_llm()
             return llm.chat(messages=messages, model=model, temperature=temperature)
@@ -829,7 +921,12 @@ class QNFService:
         return job_id
 
     def _update_job(
-        self, job_id: str, *, status: str, result: Optional[Dict[str, Any]] = None, error: Optional[str] = None
+        self,
+        job_id: str,
+        *,
+        status: str,
+        result: Optional[Dict[str, Any]] = None,
+        error: Optional[str] = None,
     ) -> None:
         with self._jobs_lock:
             payload: Dict[str, Any] = self._jobs.get(job_id, {})

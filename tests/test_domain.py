@@ -1,6 +1,8 @@
-﻿import pytest
-from datetime import datetime, timezone
-from backend.domain.models import Note, MemorySnapshot, Entity
+﻿from datetime import datetime, timezone
+
+import pytest
+
+from backend.domain.models import Entity, MemorySnapshot, Note
 
 
 def test_entity_defaults():

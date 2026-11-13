@@ -12,7 +12,7 @@ Architecture:
 
 import logging
 import re
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,9 @@ class AutismLens:
         main_point = first_line_sentences[0] if first_line_sentences else ""
 
         definitions = self._extract_definitions(normalized)
-        definition_sentences = {item["source_sentence"] for item in definitions.values()}
+        definition_sentences = {
+            item["source_sentence"] for item in definitions.values()
+        }
 
         details: List[str] = []
         for sentence in first_line_sentences[1:]:
@@ -100,11 +102,18 @@ class AutismLens:
             f"with {len(details)} supporting detail(s) and {len(definitions)} definition(s)."
         )
 
-        logger.debug("🧠 Autism lens transformed text into %s structured parts.", len(transformed_parts))
+        logger.debug(
+            "🧠 Autism lens transformed text into %s structured parts.",
+            len(transformed_parts),
+        )
         return "\n\n".join(transformed_parts)
 
     def _split_into_sentences(self, text: str) -> List[str]:
-        return [part.strip() for part in re.split(r"(?<=[.!?])\s+", text.strip()) if part.strip()]
+        return [
+            part.strip()
+            for part in re.split(r"(?<=[.!?])\s+", text.strip())
+            if part.strip()
+        ]
 
     def _extract_definitions(self, text: str) -> Dict[str, Dict[str, str]]:
         pattern = re.compile(

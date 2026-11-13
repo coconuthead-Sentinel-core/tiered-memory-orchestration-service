@@ -1,8 +1,12 @@
-from typing import Any, Dict, Optional, List, Literal, Union
-from pydantic import BaseModel, Field, conlist, ConfigDict
+from typing import Any, Dict, List, Literal, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, Field, conlist
+
 
 class ProcessRequest(BaseModel):
-    data: str = Field(..., min_length=1, max_length=10000, description="Data to process")
+    data: str = Field(
+        ..., min_length=1, max_length=10000, description="Data to process"
+    )
     pool_id: Optional[str] = Field(None, description="Optional pool ID")
 
 
@@ -136,27 +140,34 @@ class BootStep(BaseModel):
 
 Role = Literal["system", "user", "assistant", "tool"]
 
+
 class ChatMessage(BaseModel):
     role: Role
     content: str
     name: Optional[str] = None
 
+
 class ChatRequest(BaseModel):
     messages: conlist(ChatMessage, min_length=1)
     temperature: Optional[float] = Field(default=0.2, ge=0.0, le=2.0)
-    max_completion_tokens: Optional[int] = Field(default=None, ge=1)  # required for o4-mini / GPT-5 models
+    max_completion_tokens: Optional[int] = Field(
+        default=None, ge=1
+    )  # required for o4-mini / GPT-5 models
     tools: Optional[List[Dict[str, Any]]] = None
     tool_choice: Optional[Union[str, Dict[str, Any]]] = None
     response_format: Optional[Dict[str, Any]] = None
+
 
 class ChoiceMessage(BaseModel):
     role: Role
     content: Optional[str] = None
 
+
 class ChatChoice(BaseModel):
     index: int
     message: ChoiceMessage
     finish_reason: Optional[str] = None
+
 
 class ChatResponse(BaseModel):
     id: str
@@ -164,16 +175,19 @@ class ChatResponse(BaseModel):
     created: int
     choices: List[ChatChoice]
     usage: Optional[Dict[str, Any]] = None
-    
+
     model_config = ConfigDict(extra="allow")  # Allow cognitive metadata
+
 
 class EmbeddingsRequest(BaseModel):
     input: Union[str, List[str]]
     dimensions: Optional[int] = Field(default=None, ge=1, le=8192)
 
+
 class EmbeddingVector(BaseModel):
     embedding: List[float]
     index: int
+
 
 class EmbeddingsResponse(BaseModel):
     data: List[EmbeddingVector]

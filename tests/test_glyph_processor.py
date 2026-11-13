@@ -7,17 +7,17 @@ Validates:
 4. Confidence scoring and rule application
 """
 
-import pytest
 import json
 import tempfile
 from pathlib import Path
+
+import pytest
 
 from backend.services.glyph_processor import (
     GlyphProcessor,
     SymbolicMetadata,
     get_glyph_processor,
 )
-
 
 # --- Test Data ---
 
@@ -26,23 +26,24 @@ SAMPLE_GLYPHS = {
         "TEST_INIT": {
             "topic": "initiation",
             "seeds": ["start", "begin", "initiate", "launch"],
-            "rules": {"start": "tag:init.begin"}
+            "rules": {"start": "tag:init.begin"},
         },
         "TEST_PROCESS": {
             "topic": "process",
             "seeds": ["process", "handle", "execute", "run"],
-            "rules": {"process": "tag:process.core"}
+            "rules": {"process": "tag:process.core"},
         },
         "TEST_END": {
             "topic": "completion",
             "seeds": ["finish", "complete", "end", "done"],
-            "rules": {"complete": "tag:completion.done"}
-        }
+            "rules": {"complete": "tag:completion.done"},
+        },
     }
 }
 
 
 # --- Glyph Loading Tests ---
+
 
 def test_glyph_processor_initialization():
     """Test GlyphProcessor initializes with default or custom path."""
@@ -54,7 +55,7 @@ def test_glyph_processor_initialization():
 def test_glyph_processor_custom_path():
     """Test loading glyphs from custom JSON file."""
     # Create temporary JSON file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         json.dump(SAMPLE_GLYPHS, f)
         temp_path = f.name
 
@@ -99,6 +100,7 @@ def test_get_shape_info():
 
 # --- Pattern Matching Tests ---
 
+
 def test_process_text_empty():
     """Test processing empty or whitespace-only text."""
     processor = GlyphProcessor()
@@ -119,7 +121,7 @@ def test_process_text_no_matches():
 def test_process_text_exact_match():
     """Test processing text with exact glyph seed matches."""
     # Create processor with test glyphs
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         json.dump(SAMPLE_GLYPHS, f)
         temp_path = f.name
 
@@ -128,10 +130,14 @@ def test_process_text_exact_match():
 
         # Test exact match
         result = processor.process_text("Let's start the process now")
-        assert len(result.matched_glyphs) == 2  # Should match TEST_INIT and TEST_PROCESS
+        assert (
+            len(result.matched_glyphs) == 2
+        )  # Should match TEST_INIT and TEST_PROCESS
 
         # Check first match (TEST_INIT)
-        init_match = next((m for m in result.matched_glyphs if m.shape == "TEST_INIT"), None)
+        init_match = next(
+            (m for m in result.matched_glyphs if m.shape == "TEST_INIT"), None
+        )
         assert init_match is not None
         assert init_match.topic == "initiation"
         assert "start" in init_match.matched_seeds
@@ -139,7 +145,9 @@ def test_process_text_exact_match():
         assert "tag:init.begin" in init_match.applied_rules.values()
 
         # Check second match (TEST_PROCESS)
-        process_match = next((m for m in result.matched_glyphs if m.shape == "TEST_PROCESS"), None)
+        process_match = next(
+            (m for m in result.matched_glyphs if m.shape == "TEST_PROCESS"), None
+        )
         assert process_match is not None
         assert process_match.topic == "process"
         assert "process" in process_match.matched_seeds
@@ -155,7 +163,7 @@ def test_process_text_exact_match():
 
 def test_process_text_partial_match():
     """Test processing text with partial substring matches."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         json.dump(SAMPLE_GLYPHS, f)
         temp_path = f.name
 
@@ -177,7 +185,7 @@ def test_process_text_partial_match():
 
 def test_process_text_multiple_matches():
     """Test processing text that matches multiple seeds in one glyph."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         json.dump(SAMPLE_GLYPHS, f)
         temp_path = f.name
 
@@ -189,9 +197,13 @@ def test_process_text_multiple_matches():
         assert len(result.matched_glyphs) >= 1
 
         # Find TEST_PROCESS match
-        process_match = next((m for m in result.matched_glyphs if m.shape == "TEST_PROCESS"), None)
+        process_match = next(
+            (m for m in result.matched_glyphs if m.shape == "TEST_PROCESS"), None
+        )
         assert process_match is not None
-        assert len(process_match.matched_seeds) >= 2  # Should match "process" and "execute"
+        assert (
+            len(process_match.matched_seeds) >= 2
+        )  # Should match "process" and "execute"
         assert process_match.confidence < 1.0  # Average of multiple matches
 
     finally:
@@ -200,7 +212,7 @@ def test_process_text_multiple_matches():
 
 def test_process_text_confidence_calculation():
     """Test confidence score calculation for matches."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         json.dump(SAMPLE_GLYPHS, f)
         temp_path = f.name
 
@@ -219,19 +231,22 @@ def test_process_text_confidence_calculation():
 
         # Multiple matches (mixed exact/partial)
         result = processor.process_text("start the process")
-        init_match = next((m for m in result.matched_glyphs if m.shape == "TEST_INIT"), None)
-        process_match = next((m for m in result.matched_glyphs if m.shape == "TEST_PROCESS"), None)
+        init_match = next(
+            (m for m in result.matched_glyphs if m.shape == "TEST_INIT"), None
+        )
+        process_match = next(
+            (m for m in result.matched_glyphs if m.shape == "TEST_PROCESS"), None
+        )
 
         assert init_match.confidence == 1.0  # Exact "start"
         assert process_match.confidence == 1.0  # Exact "process"
-
-
 
     finally:
         Path(temp_path).unlink()
 
 
 # --- Singleton Tests ---
+
 
 def test_get_glyph_processor_singleton():
     """Test that get_glyph_processor returns singleton instance."""
@@ -258,6 +273,7 @@ def test_reload_glyphs():
 
 # --- Integration Tests ---
 
+
 def test_glyph_processor_with_real_sample():
     """Test glyph processor with the actual sample glyphs file."""
     # This test uses the real sample file in the data directory
@@ -270,4 +286,6 @@ def test_glyph_processor_with_real_sample():
     apex_match = next((m for m in result.matched_glyphs if m.shape == "APEX"), None)
     if apex_match:
         assert apex_match.topic == "initiation"
-        assert any(seed in ["ignite", "ai_infer", "query"] for seed in apex_match.matched_seeds)
+        assert any(
+            seed in ["ignite", "ai_infer", "query"] for seed in apex_match.matched_seeds
+        )

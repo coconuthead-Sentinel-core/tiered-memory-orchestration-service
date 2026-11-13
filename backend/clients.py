@@ -2,8 +2,8 @@ import logging
 import os
 from typing import Optional
 
-from openai import AzureOpenAI
 from azure.cosmos import CosmosClient
+from openai import AzureOpenAI
 
 # --- Azure OpenAI Client ---
 # Uses API key auth when AOAI_KEY is set (local dev).
@@ -26,6 +26,7 @@ elif AOAI_ENDPOINT:
     # AAD / DefaultAzureCredential fallback (production managed identity)
     try:
         from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
         credential = DefaultAzureCredential()
         token_provider = get_bearer_token_provider(
             credential, "https://cognitiveservices.azure.com/.default"
@@ -56,6 +57,7 @@ if cosmos_endpoint:
     else:
         try:
             from azure.identity import DefaultAzureCredential
+
             cosmos_client = CosmosClient(
                 url=cosmos_endpoint, credential=DefaultAzureCredential()
             )

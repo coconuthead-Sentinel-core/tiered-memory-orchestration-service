@@ -9,23 +9,26 @@ from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
+
 class PyBindBridge:
     """
     Simulated pybind11 Bridge for C++ Core Logic.
     In a full deployment, this would wrap the compiled .so/.pyd module.
     """
-    
+
     def __init__(self):
         self.coordinate = "Corpus Callosum"
         self.cpp_core_status = "SIMULATED"
         logger.info(f"🌉 PyBindBridge Initialized at {self.coordinate}")
 
-    def invoke_cpp_logic(self, function_name: str, args: Dict[str, Any]) -> Dict[str, Any]:
+    def invoke_cpp_logic(
+        self, function_name: str, args: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Invoke a function in the C++ core via the bridge.
         """
         logger.debug(f"Calling C++ Core: {function_name} with {args}")
-        
+
         # Simulation of high-performance logic
         if function_name == "optimize_matrix":
             return {"status": "optimized", "latency_ns": 450}
@@ -47,7 +50,8 @@ class PyBindBridge:
             "layer": "L5 Corpus Callosum",
             "protocol": "pybind11",
             "status": "ACTIVE",
-            "mode": "Seamless Symbiosis"
+            "mode": "Seamless Symbiosis",
         }
+
 
 bridge = PyBindBridge()

@@ -7,7 +7,6 @@ from typing import Any, Dict
 
 import requests
 
-
 API = os.getenv("QNF_API", "http://localhost:8000")
 API_KEY = os.getenv("QNF_API_KEY")
 
@@ -27,7 +26,9 @@ def status() -> Dict[str, Any]:
 
 def stress(iterations: int, concurrent: bool) -> Dict[str, Any]:
     payload = {"iterations": iterations, "concurrent": concurrent, "async_mode": False}
-    r = requests.post(f"{API}/api/stress", data=json.dumps(payload), headers=_headers(), timeout=120)
+    r = requests.post(
+        f"{API}/api/stress", data=json.dumps(payload), headers=_headers(), timeout=120
+    )
     r.raise_for_status()
     return r.json()
 
@@ -41,12 +42,19 @@ def seed_texts() -> None:
         "quantum cognition load metrics",
     ]
     for t in texts:
-        r = requests.post(f"{API}/api/cog/process", data=json.dumps({"data": t}), headers=_headers(), timeout=15)
+        r = requests.post(
+            f"{API}/api/cog/process",
+            data=json.dumps({"data": t}),
+            headers=_headers(),
+            timeout=15,
+        )
         r.raise_for_status()
 
 
 def recent_events(limit: int = 20) -> Any:
-    r = requests.get(f"{API}/api/events/history?limit={limit}", headers=_headers(), timeout=10)
+    r = requests.get(
+        f"{API}/api/events/history?limit={limit}", headers=_headers(), timeout=10
+    )
     r.raise_for_status()
     return r.json()
 
@@ -69,7 +77,9 @@ def main() -> None:
         return
 
     if args.stress > 0:
-        print(f"[load] running stress: iterations={args.stress} concurrent={args.concurrent}")
+        print(
+            f"[load] running stress: iterations={args.stress} concurrent={args.concurrent}"
+        )
         res = stress(args.stress, args.concurrent)
         print(json.dumps(res, indent=2))
 
@@ -81,4 +91,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient  # type: ignore[reportMissingImports]
 
-from backend.main import app
 from backend.eventbus import bus
+from backend.main import app
 
 
 def test_ws_sync_receives_published_events(monkeypatch):

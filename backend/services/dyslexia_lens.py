@@ -12,7 +12,7 @@ Architecture:
 
 import logging
 import re
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,11 @@ class DyslexiaLens:
         if not context or not context.strip():
             return context
 
-        sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", context.strip()) if part.strip()]
+        sentences = [
+            part.strip()
+            for part in re.split(r"(?<=[.!?])\s+", context.strip())
+            if part.strip()
+        ]
         if not sentences:
             return ""
 
@@ -65,7 +69,9 @@ class DyslexiaLens:
         ]
 
         if key_concepts:
-            concept_lines = [f"{symbol_map.get(concept, '🔹')} {concept}" for concept in key_concepts]
+            concept_lines = [
+                f"{symbol_map.get(concept, '🔹')} {concept}" for concept in key_concepts
+            ]
             transformed_parts.append(f"  {concept_lines[0]:<15}")
             if len(concept_lines) > 1:
                 transformed_parts[-1] += f"--- [ {concept_lines[1]} ]"

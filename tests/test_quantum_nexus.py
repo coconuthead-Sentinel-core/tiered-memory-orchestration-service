@@ -1,8 +1,9 @@
 # tests/test_quantum_nexus.py
 """Tests for the Quantum Nexus lattice coordinate system."""
-import pytest
-from backend.services.quantum_nexus import QuantumNexus, GreatGreg
 
+import pytest
+
+from backend.services.quantum_nexus import GreatGreg, QuantumNexus
 
 # Sample blueprint for testing
 SAMPLE_BLUEPRINT = {
@@ -14,7 +15,12 @@ SAMPLE_BLUEPRINT = {
             "O1": {"r": 3, "c": 3, "node": 3, "label": "GitHub Essentials"},
             "P1": {"r": 3, "c": 4, "node": 3, "label": "Prompt Engineering Workshop"},
             "V1": {"r": 4, "c": 4, "node": 4, "label": "AI Mind Map Generation"},
-            "Z1": {"r": 5, "c": 2, "node": 5, "label": "ZA1 Dynamic Expansion (Future Modules)"},
+            "Z1": {
+                "r": 5,
+                "c": 2,
+                "node": 5,
+                "label": "ZA1 Dynamic Expansion (Future Modules)",
+            },
         }
     },
     "nodes": [

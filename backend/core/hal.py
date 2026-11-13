@@ -4,11 +4,13 @@ Grid Coordinate: Grid Alpha (F5-I8)
 Anchors autonomic knowledge to shield logic from platform amnesia.
 """
 
-import platform
-import psutil
 import logging
+import platform
+
+import psutil
 
 logger = logging.getLogger(__name__)
+
 
 class HAL:
     def __init__(self):
@@ -25,7 +27,7 @@ class HAL:
             "machine": platform.machine(),
             "processor": platform.processor(),
             "cpu_count": psutil.cpu_count(),
-            "memory_total": psutil.virtual_memory().total
+            "memory_total": psutil.virtual_memory().total,
         }
 
     def get_anchor_status(self):
@@ -33,7 +35,8 @@ class HAL:
             "status": "ANCHORED",
             "layer": "L1 Brain Stem",
             "coordinate": self.coordinate,
-            "persistence": "AUTONOMIC"
+            "persistence": "AUTONOMIC",
         }
+
 
 hal = HAL()

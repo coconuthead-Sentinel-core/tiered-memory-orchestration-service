@@ -11,9 +11,9 @@ Architecture:
 import json
 import logging
 import re
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Set
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +53,9 @@ class GlyphProcessor:
     def _load_glyphs(self) -> None:
         """Load glyph definitions from JSON file."""
         try:
-            with open(self.glyphs_path, 'r', encoding='utf-8') as f:
+            with open(self.glyphs_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                self.glyphs = data.get('shapes', {})
+                self.glyphs = data.get("shapes", {})
                 logger.info(f"📖 Loaded {len(self.glyphs)} glyph shapes")
         except FileNotFoundError:
             logger.warning(f"⚠️ Glyphs file not found: {self.glyphs_path}")
@@ -72,28 +72,28 @@ class GlyphProcessor:
             "APEX": {
                 "topic": "initiation",
                 "seeds": ["apex", "ignite", "ai_infer", "start", "init", "query"],
-                "rules": {"apex": "tag:initiation"}
+                "rules": {"apex": "tag:initiation"},
             },
             "CORE": {
                 "topic": "process",
                 "seeds": ["core", "resolve", "process", "logic", "reason"],
-                "rules": {"process": "tag:process.core"}
+                "rules": {"process": "tag:process.core"},
             },
             "EMIT": {
                 "topic": "action",
                 "seeds": ["emit", "launch", "trigger", "output", "send"],
-                "rules": {"launch": "tag:action.emit"}
+                "rules": {"launch": "tag:action.emit"},
             },
             "ROOT": {
                 "topic": "ethics",
                 "seeds": ["root", "link", "thread", "memory", "ethics", "bind"],
-                "rules": {"ethics": "tag:ethics.guard"}
+                "rules": {"ethics": "tag:ethics.guard"},
             },
             "CUBE": {
                 "topic": "stability",
                 "seeds": ["cube", "resonate", "stabilize", "harmonize", "ground"],
-                "rules": {"cube": "tag:stability.struct"}
-            }
+                "rules": {"cube": "tag:stability.struct"},
+            },
         }
 
     def process_event(self, event: Dict[str, Any]) -> Optional[SymbolicMetadata]:
@@ -140,18 +140,18 @@ class GlyphProcessor:
         # Derive metadata
         dominant_topic = matches[0].topic if matches else None
         symbolic_tags = {
-            rule
-            for match in matches
-            for rule in match.applied_rules.values()
+            rule for match in matches for rule in match.applied_rules.values()
         }
-        
+
         return SymbolicMetadata(
             matched_glyphs=matches,
             dominant_topic=dominant_topic,
             symbolic_tags=symbolic_tags,
         )
 
-    def _match_glyph(self, text: str, shape_name: str, shape_data: Dict[str, Any]) -> Optional[GlyphMatch]:
+    def _match_glyph(
+        self, text: str, shape_name: str, shape_data: Dict[str, Any]
+    ) -> Optional[GlyphMatch]:
         """
         Match a single glyph against text.
 
@@ -161,9 +161,9 @@ class GlyphProcessor:
         - Stem/root similarity (lower confidence)
         """
         text_lower = text.lower()
-        seeds = shape_data.get('seeds', [])
-        rules = shape_data.get('rules', {})
-        topic = shape_data.get('topic', 'unknown')
+        seeds = shape_data.get("seeds", [])
+        rules = shape_data.get("rules", {})
+        topic = shape_data.get("topic", "unknown")
 
         matched_seeds = []
         applied_rules = {}
@@ -174,7 +174,7 @@ class GlyphProcessor:
             seed_lower = seed.lower()
 
             # Exact word match (highest confidence)
-            if re.search(r'\b' + re.escape(seed_lower) + r'\b', text_lower):
+            if re.search(r"\b" + re.escape(seed_lower) + r"\b", text_lower):
                 matched_seeds.append(seed)
                 total_score += 1.0
                 match_count += 1
@@ -214,7 +214,7 @@ class GlyphProcessor:
             topic=topic,
             confidence=min(confidence, 1.0),  # Cap at 1.0
             matched_seeds=matched_seeds,
-            applied_rules=applied_rules
+            applied_rules=applied_rules,
         )
 
     def _token_similarity_score(self, text: str, seed: str) -> float:
